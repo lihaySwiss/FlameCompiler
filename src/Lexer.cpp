@@ -35,7 +35,7 @@ void Lexer::readFromFile()
         i += tok.token.size();
     }
 
-    // Printing results for debugging
+    //Printing results for debugging
     // for (Token token : this->tokenList)
     // {
     //     std::cout << token.token << " ";

@@ -1,12 +1,4 @@
-if (cock == big)
+if (cock == 2)
 {
-    return true
-}
-else{
-    x := 23%2
-    while(1)
-    {
-        x++
-    }
-    
+    bool flag := 1
 }

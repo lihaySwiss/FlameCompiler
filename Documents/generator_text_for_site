@@ -1,0 +1,55 @@
+program -> statement
+program -> program statement
+
+statement -> if_statement 
+statement -> while_statement 
+statement -> expression 
+statement -> assignment 
+statement -> deceleration
+statement -> for_statement
+
+for_statement -> for ( assignment ; condition ; expression ) { expression }
+
+if_statement -> if ( condition ) { expression } 
+if_statement -> if ( condition ) { expression } else { expression }
+
+while_statement -> while ( condition ) { expression }
+
+deceleration -> type identifier := expression
+deceleration -> type identifier
+
+assignment -> identifier := expression
+
+type -> int
+type -> bool
+type -> char
+
+expression -> factor
+expression -> factor arop expression 
+expression -> factor bitop expression 
+expression -> identifier unary_expression 
+
+factor -> number 
+factor -> identifier               
+
+condition -> expression relational_operator expression
+
+relational_operator -> ==
+relational_operator -> !=
+relational_operator -> <
+relational_operator -> >
+relational_operator -> <=
+relational_operator -> >=
+
+arop -> - 
+arop -> +  
+arop -> *  
+arop -> /  
+
+unary_expression -> ++ 
+unary_expression -> --   
+
+bitop -> | 
+bitop -> & 
+bitop -> >> 
+bitop -> << 

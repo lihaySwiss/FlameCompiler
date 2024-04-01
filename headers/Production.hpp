@@ -1,26 +1,35 @@
+#pragma once
 #include <vector>
 #include <iostream> 
 #include "Lexer.hpp"
 
 enum non_terminal{
-    PROGRAM = 900,
-    DECLARATION,
-    TYPE,
-    VAR_DECLARATION,
+    PROGRAM = 32,
     STATEMENT,
+    FOR_STATEMENT,
+    IF_STATEMENT,
+    WHILE_STATEMENT,
+    DECELERATION_STATEMENT,
+    ASSIGNMENT,
+    TYPE,
     EXPRESSION,
-    RETURN_STATEMENT,
-    TERM,
     FACTOR,
-    LOGIC_EXPRESSION,
-    LITERAL,
-    LOOP,
     CONDITION,
-    BINOP
+    RELATIONAL_OPERATOR,
+    AROP,
+    UNARY_EXPRESSION,
+    BITOP
 };
+
+
+//example: production for type 
+// left-> Token(NON-TERMINAL) right -> (Token(ID_INT))
+// left-> Token(NON-TERMINAL) right -> (Token(ID_CHAR))
+// left-> Token(NON-TERMINAL) right -> (Token(ID_BOOL))
 
 class Production{
     public:
+    Production(){};
     non_terminal left;
     std::vector<int> right;
     

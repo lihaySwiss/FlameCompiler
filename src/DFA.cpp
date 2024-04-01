@@ -165,6 +165,9 @@ void DFA::makeDFA()
     addTokens("==");
     addTokens("<=");
     addTokens(">=");
+    addTokens("<");
+    addTokens(">");
+    addTokens("!=");
     
 
     // Special
@@ -183,4 +186,7 @@ void DFA::makeDFA()
     //true and false
     addTokens("true");
     addTokens("false");
+
+    //end of file
+    addTokens("$");
 }

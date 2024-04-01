@@ -1,41 +1,72 @@
 #pragma once
-#include "Token.hpp"
-#include "Lexer.hpp"
 #include "Stack.hpp"
+#include "Token.hpp"
 #include "Production.hpp"
 #include <vector>
-#include <iostream> 
 #include <fstream>
 #include <sstream>
-#include <string>
+#include <unordered_map>
 
 
-//example: rules for type 
-// left-> Token(NON-TERMINAL) right -> (Token(ID_INT))
-// left-> Token(NON-TERMINAL) right -> (Token(ID_CHAR))
-// left-> Token(NON-TERMINAL) right -> (Token(ID_BOOL))
-struct Rule{
-    non_terminal left;
-    list<int> right;
-};
+enum actionTableKeys{
+    FOR_ACTION = 0,
+    LPARAN_ACTION,
+    SEMI_COLON_ACTION,
+    RPARAN_ACTION,
+    LBRACE_ACTION,
+    RBRACE_ACTION,
+    IF_ACTION,
+    ELSE_ACTION,
+    WHILE_ACTION,
+    IDENTIFIER_ACTION,
+    ASSIGNMENT_ACTION,
+    INT_ACTION,
+    BOOL_ACTION,
+    CHAR_ACTION,
+    NUMBER_ACTION,
+    EQUAL_ACTION,
+    NOTEQ_ACTION,
+    SMALLER_ACTION,
+    BIGGER_ACTION,
+    SMALLER_EQUAL_ACTION,
+    BIGGER_EQUAL_ACTION,
+    MINUS_ACTION,
+    PLUS_ACTION,
+    MULT_ACTION,
+    DIV_ACTION,
+    UNARY_PLUS_ACTION,
+    UNARY_MINUS_ACTION,
+    OR_ACTION,
+    AND_ACTION,
+    SHR_ACTION,
+    SHL_ACTION,
+    EOF_ACTION,
+}typedef actionTableKeys;
 
 struct ParseTree{
-    Rule rule;
+    int value;
     std::vector<ParseTree> children;
-};
-
-
+}typedef ParseTree;
 
 class Parser{
 private:
+    Stack<ParseTree> ASTack;
     Stack<int> tokenStack;
     std::list<Token> inputList;
-    list<Production> productions;
+    std::vector<Production> productions;
+    std::vector<std::vector<std::string>> actionGoTable;
+    
+    //to convert between token id and action table keys we can use a hashtable which maps token id to action table keys
+    std::unordered_map<int, actionTableKeys> tokenActions;
+
 
 
 public:
     Parser();
     void setInputList(list<Token> inputList){this->inputList = inputList;}
-    bool readFile();
+    void generateParseTables();
+    ParseTree parse();
+    void makeMap();
+    void printAST(ParseTree& root, string prefix, bool isLast);
 
 };
