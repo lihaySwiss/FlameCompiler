@@ -4,7 +4,7 @@ while (str == g)
     {
         if (hi / 2 == 1)
         {
-            int char = 9
+            int char := 9
         }
     }
 }

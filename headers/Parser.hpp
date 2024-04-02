@@ -43,6 +43,12 @@ enum actionTableKeys{
     EOF_ACTION,
 }typedef actionTableKeys;
 
+const string terminal_words[] = {
+    "FOR", "(", ";", ")", "{", "}", "IF", "ELSE", "WHILE", "IDENTIFIER", "ASSIGNMENT", "INT", 
+    "BOOL", "CHAR", "NUMBER", "EQUAL", "NOTEQ", "SMALLER", "BIGGER", "SMALLER_EQUAL","BIGGER_EQUAL", 
+    "MINUS", "PLUS", "MULT", "DIV", "UNARY_PLUS", "UNARY_MINUS", "OR", "AND", "SHR", "SHL", "EOF"};
+
+
 struct ParseTree{
     int value;
     std::vector<ParseTree> children;

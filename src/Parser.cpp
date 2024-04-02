@@ -3,8 +3,11 @@
 Parser::Parser()
 {
     //definig program
-    productions.push_back(Production(PROGRAM, {STATEMENT}));
-    productions.push_back(Production(PROGRAM, {PROGRAM, STATEMENT}));
+    productions.push_back(Production(PROGRAM, {STATEMENT_LIST}));
+
+    //defining statement list
+    productions.push_back(Production(STATEMENT_LIST, {STATEMENT}));
+    productions.push_back(Production(STATEMENT_LIST, {STATEMENT_LIST, STATEMENT}));
 
     //defining statements
     productions.push_back(Production(STATEMENT, {IF_STATEMENT}));
@@ -12,12 +15,13 @@ Parser::Parser()
     productions.push_back(Production(STATEMENT, {ASSIGNMENT}));
     productions.push_back(Production(STATEMENT, {DECELERATION_STATEMENT}));
     productions.push_back(Production(STATEMENT, {FOR_STATEMENT}));
+    productions.push_back(Production(STATEMENT, {EXPRESSION}));
 
     //defining loops and conditions
-    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, AROP, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
-    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
-    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, PROGRAM, RBRACE_ACTION}));
-    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
+    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
     
     //defining declarations
     productions.push_back(Production(DECELERATION_STATEMENT, {TYPE, IDENTIFIER_ACTION, ASSIGNMENT_ACTION, EXPRESSION}));
@@ -33,14 +37,14 @@ Parser::Parser()
 
     //defining expressions
     productions.push_back(Production(EXPRESSION, {FACTOR}));
-    productions.push_back(Production(EXPRESSION, {FACTOR, AROP, EXPRESSION}));
-    productions.push_back(Production(EXPRESSION, {FACTOR, BITOP, EXPRESSION}));
+    productions.push_back(Production(EXPRESSION, {EXPRESSION, AROP, FACTOR}));
+    productions.push_back(Production(EXPRESSION, {EXPRESSION, BITOP, FACTOR}));
     productions.push_back(Production(EXPRESSION, {IDENTIFIER_ACTION, UNARY_EXPRESSION}));
-    productions.push_back(Production(EXPRESSION, {STATEMENT}));
 
     //defining factors
     productions.push_back(Production(FACTOR, {NUMBER_ACTION}));
     productions.push_back(Production(FACTOR, {IDENTIFIER_ACTION}));
+    productions.push_back(Production(FACTOR, {LPARAN_ACTION, EXPRESSION, RPARAN_ACTION}));
 
     //defining conditions
     productions.push_back(Production(CONDITION, {EXPRESSION, RELATIONAL_OPERATOR, EXPRESSION}));
@@ -53,7 +57,7 @@ Parser::Parser()
     productions.push_back(Production(RELATIONAL_OPERATOR, {SMALLER_EQUAL_ACTION}));
     productions.push_back(Production(RELATIONAL_OPERATOR, {BIGGER_EQUAL_ACTION}));
    
-    //defining binops
+    //defining arithmetic operators
     productions.push_back(Production(AROP, {MINUS_ACTION}));
     productions.push_back(Production(AROP, {PLUS_ACTION}));
     productions.push_back(Production(AROP, {MULT_ACTION}));
@@ -200,7 +204,10 @@ ParseTree Parser::parse()
 
 // Function to print the tree in level order
 void Parser::printAST(ParseTree& root, string prefix, bool isLast) {
-  cout << prefix << (isLast ? "└── " : "├── ") << root.value << endl;
+  if(root.value >= NT_OFFSET)  
+        cout << prefix << (isLast ? "└── " : "├── ") << non_terminal_words[root.value - NT_OFFSET] << endl;
+  else
+        cout << prefix << (isLast ? "└── " : "├── ") << terminal_words[root.value] << endl;
 
   if (!root.children.empty()) {
     for (size_t i = 0; i < root.children.size(); ++i) {
