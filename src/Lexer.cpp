@@ -1,5 +1,7 @@
 #include "../headers/Lexer.hpp"
 
+int LOC = 1;
+
 Lexer::Lexer(std::string path)
 {
     this->path = path;
@@ -24,14 +26,19 @@ void Lexer::readFromFile()
     }
 
     while (std::getline(file, line)) {
-        data += line; // Append each line to the string
+        data += line + "\n"; // Append each line to the string
     }
     
     // Analyizing each word recived from the file
     // word is a sequence of charecters whice ends with a space
     for (i = 0; i < data.size();)
     {
-        tok = analyze(data.substr(i));
+        if(data[i] == '\n')
+        {
+            LOC++;
+            data[i] = '\0';
+        }
+        tok = analyze(data.substr(i), LOC);
         i += tok.token.size();
     }
 
@@ -44,7 +51,7 @@ void Lexer::readFromFile()
     // }
 }
 
-Token Lexer::analyze(std::string data)
+Token Lexer::analyze(std::string data, int loc)
 {
     int i = 0, tempNext = 0;
     std::string result = "";
@@ -71,8 +78,10 @@ Token Lexer::analyze(std::string data)
     t->token = result;
 
     if(t->token.size() > 0)
+    {
+        t->loc = loc;
         tokenList.push_back(*t);
-
+    }
     else{
         t->token += ' ';
     }

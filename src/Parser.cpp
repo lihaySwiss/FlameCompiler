@@ -14,7 +14,7 @@ Parser::Parser()
     productions.push_back(Production(STATEMENT, {FOR_STATEMENT}));
 
     //defining loops and conditions
-    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT_ACTION, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, AROP, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
+    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, AROP, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
     productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
     productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, PROGRAM, RBRACE_ACTION}));
     productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, EXPRESSION, RBRACE_ACTION}));
@@ -99,8 +99,10 @@ void Parser::makeMap()
     this->tokenActions[LOGIC_AND] = actionTableKeys::AND_ACTION;
     this->tokenActions[LOGIC_OR] = actionTableKeys::OR_ACTION;
     this->tokenActions[EQUAL] = actionTableKeys::EQUAL_ACTION;
-    this->tokenActions[BIGEER_EQUAL] = actionTableKeys::BIGGER_EQUAL_ACTION;
+    this->tokenActions[SMALLER] = actionTableKeys::SMALLER_ACTION;
+    this->tokenActions[BIGEER] = actionTableKeys::BIGGER_ACTION;
     this->tokenActions[SMALLER_EQUAL] = actionTableKeys::SMALLER_EQUAL_ACTION;
+    this->tokenActions[BIGEER_EQUAL] = actionTableKeys::BIGGER_EQUAL_ACTION;
     this->tokenActions[NOT_EQ] = actionTableKeys::NOTEQ_ACTION;
     this->tokenActions[DEFINE_VAR] = actionTableKeys::ASSIGNMENT_ACTION;
     this->tokenActions[SEMI_COLON] = actionTableKeys::SEMI_COLON_ACTION;
@@ -147,7 +149,7 @@ ParseTree Parser::parse()
         action = this->actionGoTable[state][tokenCode];
         
         //print state, token, action for debugging
-        //cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
+        // cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
 
         if(action == "acc")
         {
@@ -189,7 +191,7 @@ ParseTree Parser::parse()
         }
         else
         {
-            cout << "parsing error - token: \"" << token.token << "\" is not valid in this position" << std::endl;
+            cout << "parsing error in line " << token.loc << " - token:\"" << token.token << "\" is not valid in this position" << std::endl;
             return ParseTree();
         }
     }

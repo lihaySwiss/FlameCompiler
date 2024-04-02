@@ -20,8 +20,10 @@ enum tokId{
     LOGIC_AND = 51,
     LOGIC_OR = 54,
     EQUAL = 59,
-    BIGEER_EQUAL = 62,
+    SMALLER = 61,
+    BIGEER = 63,
     SMALLER_EQUAL = 65,
+    BIGEER_EQUAL = 67,
     NOT_EQ = 70,
     DEFINE_VAR = 73,
     SEMI_COLON = 75,
@@ -41,4 +43,5 @@ struct Token
 {
     std::string token;
     int type;
+    int loc;
 } typedef Token;

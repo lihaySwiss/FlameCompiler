@@ -1,0 +1,10 @@
+while (str == g)
+{
+    for(hi := 5; hi != 20; hi-1)
+    {
+        if (hi / 2 == 1)
+        {
+            int char = 9
+        }
+    }
+}

@@ -12,6 +12,7 @@
 
 using namespace std;
 
+
 class Lexer
 {
 
@@ -29,7 +30,7 @@ public:
 
     std::string returnTokenString(int code);
 
-    Token analyze(std::string currWord);
+    Token analyze(std::string currWord, int loc);
 
     list<Token> getTokenList() { return this->tokenList; }
 };

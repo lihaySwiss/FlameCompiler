@@ -1,0 +1,10 @@
+while(flag == hot)
+{
+    for(hi := 5; hi == 20; hi-1)
+    {
+        if (hi == 2)
+        {
+            bool flag := hot
+        }
+    }
+}

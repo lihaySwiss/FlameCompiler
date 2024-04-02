@@ -1,4 +1,4 @@
-if (cock == 2)
+if (hello == 2)
 {
     bool flag := 1
 }
