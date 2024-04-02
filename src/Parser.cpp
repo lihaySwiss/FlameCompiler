@@ -189,7 +189,7 @@ ParseTree Parser::parse()
         }
         else
         {
-            cout << "error" << endl;
+            cout << "parsing error - token: \"" << token.token << "\" is not valid in this position" << std::endl;
             return ParseTree();
         }
     }

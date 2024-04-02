@@ -1,9 +1,8 @@
 program -> statement
-program -> program statement
+program -> program  statement
 
 statement -> if_statement 
 statement -> while_statement 
-statement -> expression 
 statement -> assignment 
 statement -> deceleration
 statement -> for_statement
@@ -28,6 +27,7 @@ expression -> factor
 expression -> factor arop expression 
 expression -> factor bitop expression 
 expression -> identifier unary_expression 
+expression -> statement
 
 factor -> number 
 factor -> identifier               
