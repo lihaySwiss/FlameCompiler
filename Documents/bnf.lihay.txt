@@ -1,0 +1,43 @@
+program ::= statement_list
+
+statement_list ::= statement | statement_list statement
+
+statement ::= if_statement | while_statement | assignment | deceleration |
+              for_statement | expression | return_statement | function
+
+for_statement ::= for ( assignment ; condition ; expression ) { statement_list }
+
+if_statement ::= if ( condition ) { statement_list } | if ( condition ) { statement_list } else { statement_list }
+
+while_statement ::= while ( condition ) { statement_list }
+
+deceleration ::= type identifier := expression | type identifier
+
+assignment ::= identifier := expression
+
+type ::= int |bool | char
+
+void_type ::= void
+
+expression ::= factor | expression arop factor | expression bitop factor | identifier unary_expression 
+
+factor ::= number | identifier | ( expression )
+
+condition ::= expression relational_operator expression
+
+relational_operator ::= == |!= | < | > | <= | >=
+
+arop ::= - | + | * | /  
+
+unary_expression ::= ++ | --   
+
+bitop ::=  & | >> | << | | 
+
+return_statement ::= return factor
+
+function ::= type identifier ( input_var_list ) { statement_list return_statement } |
+             void_type identifier ( input_var_list ) { statement_list }
+
+input_var_list ::= input_var | input_var , input_var_list | ''
+
+input_var ::= type identifier
