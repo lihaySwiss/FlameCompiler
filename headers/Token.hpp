@@ -16,7 +16,7 @@ enum tokId{
     BINOP_PLUS = 41,
     BINOP_MINUS = 43,
     BINOP_MULT = 45,
-    BINOP_AND = 47,
+    AND_OP = 47,
     LOGIC_AND = 51,
     LOGIC_OR = 54,
     EQUAL = 59,
@@ -29,14 +29,15 @@ enum tokId{
     SEMI_COLON = 75,
     APOSTROPHE = 77,
     QUOTES_TOKEN = 79,
-    LPARAN = 81,
-    RPARAN = 83,
-    LBRACE = 85,
-    RBRACE = 87,
-    ID_RETURN = 94,
+    COMMA_TOKEN = 81,
+    LPARAN = 83,
+    RPARAN = 85,
+    LBRACE = 87,
+    RBRACE = 89,
+    ID_RETURN = 96,
     ID_TRUE = 99,
-    ID_FALSE = 104,
-    ID_EOF = 106
+    ID_FALSE = 106,
+    ID_EOF = 108
 }typedef tokId;
 
 struct Token

@@ -152,7 +152,7 @@ std::string Lexer::returnTokenString(int code)
             return "BINOP_MULT";
 
 
-        case BINOP_AND:
+        case AND_OP:
             return "BINOP_AND";
 
 

@@ -4,6 +4,7 @@
         "ostream": "cpp",
         "fstream": "cpp",
         "iostream": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "unordered_map": "cpp"
     }
 }

@@ -9,6 +9,7 @@ statement -> assignment
 statement -> deceleration
 statement -> for_statement
 statement -> expression
+statement -> return_statement
 
 for_statement -> for ( assignment ; condition ; expression ) { statement_list }
 
@@ -25,6 +26,8 @@ assignment -> identifier := expression
 type -> int
 type -> bool
 type -> char
+
+void_type -> void
 
 expression -> factor
 expression -> expression arop factor
@@ -56,3 +59,15 @@ bitop -> |
 bitop -> & 
 bitop -> >> 
 bitop -> << 
+
+return_statement -> return factor
+
+function -> void_type identifier ( input_var_list ) { statement_list }
+function -> type identifier ( input_var_list ) { statement_list return_statement }
+
+input_var_list -> input_var
+input_var_list ->  input_var_list , input_var
+
+input_var -> type identifier
+
+int identifier ( input_var_list ) { if ( identifier == number ) { int identifier := number } return identifier }

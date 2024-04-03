@@ -16,6 +16,8 @@ Parser::Parser()
     productions.push_back(Production(STATEMENT, {DECELERATION_STATEMENT}));
     productions.push_back(Production(STATEMENT, {FOR_STATEMENT}));
     productions.push_back(Production(STATEMENT, {EXPRESSION}));
+    productions.push_back(Production(STATEMENT, {RETURN_STATEMENT}));
+    productions.push_back(Production(STATEMENT, {FUNCTION}));
 
     //defining loops and conditions
     productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
@@ -34,12 +36,13 @@ Parser::Parser()
     productions.push_back(Production(TYPE, {INT_ACTION}));
     productions.push_back(Production(TYPE, {CHAR_ACTION}));
     productions.push_back(Production(TYPE, {BOOL_ACTION}));
+    productions.push_back(Production(VOID_TYPE, {VOID_ACTION}));
 
     //defining expressions
     productions.push_back(Production(EXPRESSION, {FACTOR}));
     productions.push_back(Production(EXPRESSION, {EXPRESSION, AROP, FACTOR}));
     productions.push_back(Production(EXPRESSION, {EXPRESSION, BITOP, FACTOR}));
-    productions.push_back(Production(EXPRESSION, {IDENTIFIER_ACTION, UNARY_EXPRESSION}));
+    productions.push_back(Production(EXPRESSION, {IDENTIFIER_ACTION, UNARY_EXPRESSION, COMMA_TOKEN}));
 
     //defining factors
     productions.push_back(Production(FACTOR, {NUMBER_ACTION}));
@@ -64,8 +67,8 @@ Parser::Parser()
     productions.push_back(Production(AROP, {DIV_ACTION}));
 
     //defining unary operators
-    productions.push_back(Production(UNARY_EXPRESSION, {UNARY_MINUS_ACTION}));
-    productions.push_back(Production(UNARY_EXPRESSION, {UNARY_PLUS_ACTION}));
+    productions.push_back(Production(UNARY_EXPRESSION, {PLUS_ACTION, PLUS_ACTION}));
+    productions.push_back(Production(UNARY_EXPRESSION, {MINUS_ACTION, MINUS_ACTION}));
 
     //defining bitwise oprators
     productions.push_back(Production(BITOP, {OR_ACTION}));
@@ -73,47 +76,82 @@ Parser::Parser()
     productions.push_back(Production(BITOP, {SHR_ACTION}));
     productions.push_back(Production(BITOP, {SHL_ACTION}));
 
+    //defining return statement
+    productions.push_back(Production(RETURN_STATEMENT, {RETURN_ACTION, FACTOR}));
+
+    //defining functions
+    productions.push_back(Production(FUNCTION, {TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, INPUT_VAR_LIST, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RETURN_STATEMENT ,RBRACE_ACTION}));
+    productions.push_back(Production(FUNCTION, {VOID_TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+
+    //defining input var list
+    productions.push_back(Production(INPUT_VAR_LIST, {INPUT_VAR}));
+    productions.push_back(Production(INPUT_VAR_LIST, {INPUT_VAR_LIST, COMMA_ACTION, INPUT_VAR}));
+    productions.push_back(Production(INPUT_VAR_LIST, {}));
+
+    //defining input var
+    productions.push_back(Production(INPUT_VAR, {TYPE, IDENTIFIER_ACTION}));
+
     generateParseTables();
     makeMap();
 }
 
 
 // Function to map token types to action table keys
+// input: none
+// output: none
 void Parser::makeMap()
 {
+    //mapping token types to action table keys
+    //these lexer tokens are mapped to their respective action table keys
+
+    //factors
     this->tokenActions[ID_IDENTIFIER] = actionTableKeys::IDENTIFIER_ACTION;
     this->tokenActions[ID_NUMBER] = actionTableKeys::NUMBER_ACTION;
+
+    //special characters
     this->tokenActions[LPARAN] = actionTableKeys::LPARAN_ACTION;
     this->tokenActions[RPARAN] = actionTableKeys::RPARAN_ACTION;
     this->tokenActions[LBRACE] = actionTableKeys::LBRACE_ACTION;
     this->tokenActions[RBRACE] = actionTableKeys::RBRACE_ACTION;
     this->tokenActions[SEMI_COLON] = actionTableKeys::SEMI_COLON_ACTION;
+    this->tokenActions[COMMA_TOKEN] = actionTableKeys::COMMA_ACTION;
+    
+    //keywords
     this->tokenActions[ID_IF_CONDITION] = actionTableKeys::IF_ACTION;
     this->tokenActions[ID_ELSE_CONDITION] = actionTableKeys::ELSE_ACTION;
     this->tokenActions[ID_WHILE_LOOP] = actionTableKeys::WHILE_ACTION;
     this->tokenActions[ID_FOR_LOOP] = actionTableKeys::FOR_ACTION;
+
+    //types
     this->tokenActions[ID_CHAR] = actionTableKeys::CHAR_ACTION;
     this->tokenActions[ID_INT] = actionTableKeys::INT_ACTION;
     this->tokenActions[ID_BOOL] = actionTableKeys::BOOL_ACTION;
+    this->tokenActions[ID_VOID] = actionTableKeys::VOID_ACTION;
+
+    //operators
     this->tokenActions[BINOP_DIV] = actionTableKeys::DIV_ACTION;
     this->tokenActions[BINOP_PLUS] = actionTableKeys::PLUS_ACTION;
     this->tokenActions[BINOP_MINUS] = actionTableKeys::MINUS_ACTION;
     this->tokenActions[BINOP_MULT] = actionTableKeys::MULT_ACTION;
-    this->tokenActions[BINOP_AND] = actionTableKeys::AND_ACTION;
-    this->tokenActions[LOGIC_AND] = actionTableKeys::AND_ACTION;
-    this->tokenActions[LOGIC_OR] = actionTableKeys::OR_ACTION;
+
+    //logical operators
+    this->tokenActions[AND_OP] = actionTableKeys::AND_ACTION;
     this->tokenActions[EQUAL] = actionTableKeys::EQUAL_ACTION;
     this->tokenActions[SMALLER] = actionTableKeys::SMALLER_ACTION;
     this->tokenActions[BIGEER] = actionTableKeys::BIGGER_ACTION;
     this->tokenActions[SMALLER_EQUAL] = actionTableKeys::SMALLER_EQUAL_ACTION;
     this->tokenActions[BIGEER_EQUAL] = actionTableKeys::BIGGER_EQUAL_ACTION;
     this->tokenActions[NOT_EQ] = actionTableKeys::NOTEQ_ACTION;
+
+    
     this->tokenActions[DEFINE_VAR] = actionTableKeys::ASSIGNMENT_ACTION;
-    this->tokenActions[SEMI_COLON] = actionTableKeys::SEMI_COLON_ACTION;
+    this->tokenActions[ID_RETURN] = actionTableKeys::RETURN_ACTION;
     this->tokenActions[ID_EOF] = actionTableKeys::EOF_ACTION;
 }
 
 // Function to generate parse tables from csv file
+// input: csv file with action and goto table
+// output: 2d vector of strings
 void Parser::generateParseTables()
 {
     std::string line;                    /* string to hold each line */
@@ -133,17 +171,18 @@ void Parser::generateParseTables()
 }
 
 // Function to parse the input list and generate the AST
+// input: none
+// output: ParseTree node that is the root of the AST
 ParseTree Parser::parse()
 {
     int state, tokenCode, nextState, productionNum, nonTerminal;
     std::string action, nextStateStr;
     Production production;
-    ParseTree root;
     Token token;
 
-    root.value = PROGRAM;
-    inputList.push_back(Token{"$", ID_EOF});
+    //pushing initial state to stack
     this->tokenStack.push(0);
+    inputList.push_back(Token{"$", ID_EOF});
 
     while (!inputList.empty())
     {
@@ -153,13 +192,12 @@ ParseTree Parser::parse()
         action = this->actionGoTable[state][tokenCode];
         
         //print state, token, action for debugging
-        // cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
+        //cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
 
         if(action == "acc")
         {
             cout << "accepted" << endl;
-            root.children.push_back(ASTack.pop());
-            return root;
+            return ASTack.pop();
         }
         else if(action[0] == 's')
         {
@@ -180,13 +218,16 @@ ParseTree Parser::parse()
             ParseTree node;
             node.value = production.left;
             
+            //poping from stack and adding to children
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
                 node.children.insert(node.children.begin(), ASTack.pop());                
             }
+            //pushing the node to node stack
             ASTack.push(node);
-
+            
+            //getting next tate from goto table and pushing it to stack
             state = this->tokenStack.peek();
             nonTerminal = production.left;
             nextStateStr = this->actionGoTable[state][nonTerminal];
@@ -203,9 +244,11 @@ ParseTree Parser::parse()
 }
 
 // Function to print the tree in level order
+// input: ParseTree node, string prefix, bool isLast
+// output: none
 void Parser::printAST(ParseTree& root, string prefix, bool isLast) {
   if(root.value >= NT_OFFSET)  
-        cout << prefix << (isLast ? "└── " : "├── ") << non_terminal_words[root.value - NT_OFFSET] << endl;
+        cout << prefix << (isLast ? "└── " : "├── ") << non_terminal_words[root.value - NT_OFFSET - 1] << endl;
   else
         cout << prefix << (isLast ? "└── " : "├── ") << terminal_words[root.value] << endl;
 

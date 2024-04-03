@@ -9,7 +9,7 @@ int main(int argc, char const * argv[]) {
         return 1;
     }
 
-    //std::string path = "../tests/testFail.ace";
+    //std::string path = "../tests/test.ace";
     std::string path = argv[1];
 
     

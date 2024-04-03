@@ -1,0 +1,16 @@
+int main() {    
+
+    int firstNumber
+    int seconed_number
+
+    sum := firstNumber + seconed_number 
+
+    if (sum == 2)
+    {
+        bool flag := 2
+        firstNumber := seconed_number
+        avg := (sum + firstNumber + seconed_number) / 3
+    }
+    
+    return 0
+}

@@ -22,10 +22,17 @@ void DFA::addTokens(const std::string &token)
          // Give all letters state of 1 that is identifier
         for (int row = 0; row < NUM_OF_STATES; row++)
         {
+            mat[row]['_'] = freeState;
+            
             for(int col = 'a'; col < 'z'; col++)
             {
                 mat[row][col] = freeState; 
             }
+            for (int col = 'A'; col < 'Z'; col++)
+            {
+                mat[row][col] = freeState;
+            }
+            
         }
         freeState++;
 
@@ -57,7 +64,7 @@ void DFA::addTokens(const std::string &token)
         mat[currState][token[i]] = freeState;
 
         //for debugging: print all keywords and their state
-        // std::cout << token << ":" << freeState << std::endl;
+        //std::cout << token << ":" << freeState << std::endl;
 
         currState = freeState;
         freeState++;
@@ -175,6 +182,7 @@ void DFA::makeDFA()
     addTokens(";");
     addTokens("\'");
     addTokens("\"");
+    addTokens(",");
     addTokens("(");
     addTokens(")");
     addTokens("{");
