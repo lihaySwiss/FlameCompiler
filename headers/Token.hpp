@@ -2,6 +2,8 @@
 #include <string>
 
 enum tokId{
+    UNDEFINED = -999,
+    ID_LITERAL = 0,
     ID_IDENTIFIER = 1,
     ID_NUMBER = 2,
     ID_IF_CONDITION = 4,
@@ -37,7 +39,8 @@ enum tokId{
     ID_RETURN = 96,
     ID_TRUE = 99,
     ID_FALSE = 106,
-    ID_EOF = 108
+    ID_GIVE = 111,
+    ID_EOF = 113
 }typedef tokId;
 
 struct Token

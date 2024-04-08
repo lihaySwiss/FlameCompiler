@@ -1,6 +1,6 @@
-int main() {    
+give int main() {    
 
-    int firstNumber
+    int firstNumber := 'hello'
     int seconed_number
 
     sum := firstNumber + seconed_number 

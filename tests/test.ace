@@ -1,4 +1,4 @@
 if (hello == 2)
 {
-    bool flag := 1
+    bool flag := "c"
 }

@@ -19,11 +19,12 @@ void DFA::addTokens(const std::string &token)
 
     if (freeState < 2)
     {
+
          // Give all letters state of 1 that is identifier
         for (int row = 0; row < NUM_OF_STATES; row++)
         {
             mat[row]['_'] = freeState;
-            
+
             for(int col = 'a'; col < 'z'; col++)
             {
                 mat[row][col] = freeState; 
@@ -115,7 +116,7 @@ bool DFA::readFromFile(const std::string &path)
 
     if (!file.is_open())
     {
-        std::cerr << "Creating dfa file..." << std::endl;
+        std::cerr << "failed creating dfa file..." << std::endl;
         return false;
     }
 
@@ -194,6 +195,9 @@ void DFA::makeDFA()
     //true and false
     addTokens("true");
     addTokens("false");
+
+    //for function
+    addTokens("give");
 
     //end of file
     addTokens("$");

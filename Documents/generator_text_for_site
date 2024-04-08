@@ -37,6 +37,7 @@ expression -> identifier unary_expression
 
 factor -> number
 factor -> identifier
+factor -> literal
 factor -> ( expression )
 
 condition -> expression relational_operator expression

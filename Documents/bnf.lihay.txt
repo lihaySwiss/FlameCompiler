@@ -21,7 +21,7 @@ void_type ::= void
 
 expression ::= factor | expression arop factor | expression bitop factor | identifier unary_expression 
 
-factor ::= number | identifier | ( expression )
+factor ::= number | identifier | literal | ( expression )
 
 condition ::= expression relational_operator expression
 

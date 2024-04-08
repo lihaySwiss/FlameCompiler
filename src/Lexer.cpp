@@ -66,6 +66,36 @@ Token Lexer::analyze(std::string data, int loc)
     // else identify as UNDEFINED
     while(state != -1)
     {   
+        if(data[i] == '\'' || data[i] == '\"')
+        {
+            result += data[i];
+            i++;
+
+            while(data[i] != '\'' && data[i] != '\"' && data[i] != '\0')
+            {
+                result += data[i];
+                i++;
+            }
+
+            if(data[i] != '\'' && data[i] != '\"')
+            {
+                std::cout << "Lexing error on line: " << loc << " missing closing quote" << std::endl;
+                t->type = UNDEFINED;
+                t->token = ' ';
+                t->loc = loc;
+                tokenList.push_back(*t);
+                return (*t);
+            }
+            result += data[i];
+            i++;
+
+            // the type will be literal
+            t->type = ID_LITERAL;
+            t->token = result;
+            t->loc = loc;
+            tokenList.push_back(*t);
+            return (*t);
+        }
         // the type will be the most recent valid state
         t->type = state;
         result += data[i]; 
@@ -94,9 +124,14 @@ std::string Lexer::returnTokenString(int code)
 {
     switch (code)
     {
+        case ID_LITERAL:
+            return "LITERAL";
+
         case ID_INT:
             return "INT";
 
+        case ID_IDENTIFIER:
+            return "IDENTIFIER";
 
         case ID_NUMBER:
             return "NUMBER";

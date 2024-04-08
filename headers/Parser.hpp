@@ -25,6 +25,7 @@ enum actionTableKeys{
     CHAR_ACTION,
     VOID_ACTION,
     NUMBER_ACTION,
+    LITERAL,
     EQUAL_ACTION,
     NOTEQ_ACTION,
     SMALLER_ACTION,
@@ -42,6 +43,7 @@ enum actionTableKeys{
     SHR_ACTION,
     SHL_ACTION,
     RETURN_ACTION,
+    GIVE_ACTION,
     COMMA_ACTION,
     EOF_ACTION,
 }typedef actionTableKeys;
@@ -50,10 +52,10 @@ const string terminal_words[] = {
     "FOR_ACTION", "LPARAN_ACTION", "SEMI_COLON_ACTION", "RPARAN_ACTION",
     "LBRACE_ACTION", "RBRACE_ACTION", "IF_ACTION", "ELSE_ACTION", "WHILE_ACTION",
     "IDENTIFIER_ACTION", "ASSIGNMENT_ACTION", "INT_ACTION", "BOOL_ACTION", "CHAR_ACTION",
-    "VOID_ACTION", "NUMBER_ACTION", "EQUAL_ACTION", "NOTEQ_ACTION", "SMALLER_ACTION",
+    "VOID_ACTION", "NUMBER_ACTION", "LITERAL" ,"EQUAL_ACTION", "NOTEQ_ACTION", "SMALLER_ACTION",
     "BIGGER_ACTION", "SMALLER_EQUAL_ACTION", "BIGGER_EQUAL_ACTION", "MINUS_ACTION",
     "PLUS_ACTION", "MULT_ACTION", "DIV_ACTION", "UNARY_PLUS_ACTION", "UNARY_MINUS_ACTION",
-    "OR_ACTION", "AND_ACTION", "SHR_ACTION", "SHL_ACTION", "RETURN_ACTION", "COMMA_ACTION","EOF_ACTION"};
+    "OR_ACTION", "AND_ACTION", "SHR_ACTION", "SHL_ACTION", "RETURN_ACTION", "GIVE_ACTION", "COMMA_ACTION" ,"EOF_ACTION"};
 
 
 struct ParseTree{
@@ -63,7 +65,7 @@ struct ParseTree{
 
 class Parser{
 private:
-    Stack<ParseTree> ASTack;
+    Stack<ParseTree> parStack;
     Stack<int> tokenStack;
     std::list<Token> inputList;
     std::vector<Production> productions;

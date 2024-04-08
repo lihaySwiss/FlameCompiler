@@ -47,6 +47,7 @@ Parser::Parser()
     //defining factors
     productions.push_back(Production(FACTOR, {NUMBER_ACTION}));
     productions.push_back(Production(FACTOR, {IDENTIFIER_ACTION}));
+    productions.push_back(Production(FACTOR, {LITERAL}));
     productions.push_back(Production(FACTOR, {LPARAN_ACTION, EXPRESSION, RPARAN_ACTION}));
 
     //defining conditions
@@ -80,8 +81,8 @@ Parser::Parser()
     productions.push_back(Production(RETURN_STATEMENT, {RETURN_ACTION, FACTOR}));
 
     //defining functions
-    productions.push_back(Production(FUNCTION, {TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, INPUT_VAR_LIST, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RETURN_STATEMENT ,RBRACE_ACTION}));
-    productions.push_back(Production(FUNCTION, {VOID_TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(FUNCTION, {GIVE_ACTION, TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, INPUT_VAR_LIST, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RETURN_STATEMENT ,RBRACE_ACTION}));
+    productions.push_back(Production(FUNCTION, {GIVE_ACTION, VOID_TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
 
     //defining input var list
     productions.push_back(Production(INPUT_VAR_LIST, {INPUT_VAR}));
@@ -90,7 +91,7 @@ Parser::Parser()
 
     //defining input var
     productions.push_back(Production(INPUT_VAR, {TYPE, IDENTIFIER_ACTION}));
-
+    
     generateParseTables();
     makeMap();
 }
@@ -127,6 +128,7 @@ void Parser::makeMap()
     this->tokenActions[ID_INT] = actionTableKeys::INT_ACTION;
     this->tokenActions[ID_BOOL] = actionTableKeys::BOOL_ACTION;
     this->tokenActions[ID_VOID] = actionTableKeys::VOID_ACTION;
+    this->tokenActions[ID_LITERAL] = actionTableKeys::LITERAL;
 
     //operators
     this->tokenActions[BINOP_DIV] = actionTableKeys::DIV_ACTION;
@@ -146,6 +148,7 @@ void Parser::makeMap()
     
     this->tokenActions[DEFINE_VAR] = actionTableKeys::ASSIGNMENT_ACTION;
     this->tokenActions[ID_RETURN] = actionTableKeys::RETURN_ACTION;
+    this->tokenActions[ID_GIVE] = actionTableKeys::GIVE_ACTION;
     this->tokenActions[ID_EOF] = actionTableKeys::EOF_ACTION;
 }
 
@@ -197,7 +200,7 @@ ParseTree Parser::parse()
         if(action == "acc")
         {
             cout << "accepted" << endl;
-            return ASTack.pop();
+            return parStack.pop();
         }
         else if(action[0] == 's')
         {
@@ -207,7 +210,7 @@ ParseTree Parser::parse()
 
             ParseTree node;
             node.value = this->tokenActions[token.type];
-            ASTack.push(node);
+            parStack.push(node);
         }
         else if(action[0] == 'r')
         {
@@ -222,10 +225,10 @@ ParseTree Parser::parse()
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
-                node.children.insert(node.children.begin(), ASTack.pop());                
+                node.children.insert(node.children.begin(), parStack.pop());                
             }
             //pushing the node to node stack
-            ASTack.push(node);
+            parStack.push(node);
             
             //getting next tate from goto table and pushing it to stack
             state = this->tokenStack.peek();
@@ -236,7 +239,7 @@ ParseTree Parser::parse()
         }
         else
         {
-            cout << "parsing error in line " << token.loc << " - token:\"" << token.token << "\" is not valid in this position" << std::endl;
+            cout << "Parsing error in line " << token.loc << " - token:\"" << token.token << "\" is not valid in this position" << std::endl;
             return ParseTree();
         }
     }

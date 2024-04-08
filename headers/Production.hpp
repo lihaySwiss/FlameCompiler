@@ -3,7 +3,7 @@
 #include <iostream> 
 #include "Lexer.hpp"
 
-#define NT_OFFSET 35
+#define NT_OFFSET 37
 
 enum non_terminal{
     PROGRAM = NT_OFFSET,
