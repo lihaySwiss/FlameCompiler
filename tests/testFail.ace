@@ -1,4 +1,4 @@
-while (str == g)
+while (str == x)
 {
     for(hi := 5; hi != 20; hi-1)
     {

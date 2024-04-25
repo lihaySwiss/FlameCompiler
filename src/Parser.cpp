@@ -210,6 +210,7 @@ ParseTree Parser::parse()
 
             ParseTree node;
             node.value = this->tokenActions[token.type];
+            node.token = token;
             parStack.push(node);
         }
         else if(action[0] == 'r')
@@ -225,12 +226,16 @@ ParseTree Parser::parse()
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
-                node.children.insert(node.children.begin(), parStack.pop());                
+                ParseTree child = parStack.pop();
+                child.root = &node;
+                node.children.insert(node.children.begin(), child);
+                node.token = token;
+                node.size++;         
             }
             //pushing the node to node stack
             parStack.push(node);
             
-            //getting next tate from goto table and pushing it to stack
+            //getting next state from goto table and pushing it to stack
             state = this->tokenStack.peek();
             nonTerminal = production.left;
             nextStateStr = this->actionGoTable[state][nonTerminal];

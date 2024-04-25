@@ -2,6 +2,7 @@
 #include "Stack.hpp"
 #include "Token.hpp"
 #include "Production.hpp"
+#include "types.hpp"
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -59,8 +60,13 @@ const string terminal_words[] = {
 
 
 struct ParseTree{
+    ParseTree* root;
     int value = PROGRAM;
+    int size = 0;
+    Token token;
     std::vector<ParseTree> children;
+    types type;
+
 }typedef ParseTree;
 
 class Parser{
@@ -82,6 +88,7 @@ public:
     void generateParseTables();
     ParseTree parse();
     void makeMap();
+    void makeAST(ParseTree& root);
     void printAST(ParseTree& root, string prefix, bool isLast);
 
 };
