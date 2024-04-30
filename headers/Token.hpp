@@ -40,7 +40,8 @@ enum tokId{
     ID_TRUE = 101,
     ID_FALSE = 106,
     ID_GIVE = 111,
-    ID_EOF = 113
+    ID_PRINT = 118,
+    ID_EOF = 120,
 }typedef tokId;
 
 struct Token

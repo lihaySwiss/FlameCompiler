@@ -48,6 +48,7 @@ enum actionTableKeys{
     COMMA_ACTION,
     TRUE_ACTION,
     FALSE_ACTION,
+    PRINT_ACTION,
     EOF_ACTION,
 }typedef actionTableKeys;
 

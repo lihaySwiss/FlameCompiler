@@ -3,7 +3,7 @@
 #include <iostream> 
 #include "Lexer.hpp"
 
-#define NT_OFFSET 39
+#define NT_OFFSET 40
 
 enum non_terminal{
     PROGRAM = NT_OFFSET,
@@ -28,13 +28,14 @@ enum non_terminal{
     INPUT_VAR_LIST,
     INPUT_VAR,
     BOOL_TYPE,
+    PRINT_STATEMENT,
 };
 
 const string non_terminal_words[] = { 
     "PROGRAM", "STATEMENT_LIST", "STATEMENT", "FOR_STATEMENT", "IF_STATEMENT",
     "WHILE_STATEMENT", "DECELERATION_STATEMENT","ASSIGNMENT","TYPE","VOID_TYPE","EXPRESSION",
     "FACTOR","CONDITION","RELATIONAL_OPERATOR","AROP","UNARY_EXPRESSION","BITOP", 
-    "RETURN_STATEMENT", "FUNCTION", "INPUT_VAR_LIST", "INPUT_VAR", "BOOL_TYPE"};
+    "RETURN_STATEMENT", "FUNCTION", "INPUT_VAR_LIST", "INPUT_VAR", "BOOL_TYPE", "PRINT_STATEMENT"};
 
 //example: production for type 
 // left-> Token(NON-TERMINAL) right -> (Token(ID_INT))

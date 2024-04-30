@@ -39,6 +39,7 @@ factor -> number
 factor -> identifier
 factor -> literal
 factor -> ( expression )
+factor -> bool_type
 
 condition -> expression relational_operator expression
 
@@ -72,3 +73,8 @@ input_var_list -> input_var , input_var_list
 input_var_list -> ''
 
 input_var -> type identifier
+
+bool_type -> true
+bool_type -> false
+
+print -> scream ( expression )

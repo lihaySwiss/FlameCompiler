@@ -50,12 +50,12 @@ void Lexer::readFromFile()
     }
 
     //Printing results for debugging
-    // for (Token token : this->tokenList)
-    // {
-    //     std::cout << token.token << " ";
-    //     std::cout << returnTokenString(token.type) << " ";
-    //     std::cout << to_string(token.type) << std::endl;
-    // }
+    for (Token token : this->tokenList)
+    {
+        std::cout << token.token << " ";
+        std::cout << returnTokenString(token.type) << " ";
+        std::cout << to_string(token.type) << std::endl;
+    }
 }
 
 Token Lexer::analyze(std::string data, int loc)

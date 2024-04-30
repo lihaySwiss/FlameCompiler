@@ -25,15 +25,13 @@ void Parser::setRuleList()
     productions.push_back(Production(STATEMENT, {EXPRESSION}));
     productions.push_back(Production(STATEMENT, {RETURN_STATEMENT}));
     productions.push_back(Production(STATEMENT, {FUNCTION}));
+    productions.push_back(Production(STATEMENT, {PRINT_STATEMENT}));
 
     //defining loops and conditions
-    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION,
-     CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
     productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
-    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, 
-    STATEMENT_LIST, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
-    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, 
-    LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION,  STATEMENT_LIST, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
     
     //defining declarations
     productions.push_back(Production(DECELERATION_STATEMENT, {TYPE, IDENTIFIER_ACTION, ASSIGNMENT_ACTION, EXPRESSION}));
@@ -107,6 +105,9 @@ void Parser::setRuleList()
 
     productions.push_back(Production(BOOL_TYPE, {TRUE_ACTION}));
     productions.push_back(Production(BOOL_TYPE, {FALSE_ACTION}));
+
+    //define print statement
+    productions.push_back(Production(PRINT_STATEMENT, {PRINT_ACTION, LPARAN_ACTION, EXPRESSION, RPARAN_ACTION}));
 }
 
 
@@ -164,6 +165,7 @@ void Parser::makeMap()
     this->tokenActions[DEFINE_VAR] = actionTableKeys::ASSIGNMENT_ACTION;
     this->tokenActions[ID_RETURN] = actionTableKeys::RETURN_ACTION;
     this->tokenActions[ID_GIVE] = actionTableKeys::GIVE_ACTION;
+    this->tokenActions[ID_PRINT] = actionTableKeys::PRINT_ACTION;
     this->tokenActions[ID_EOF] = actionTableKeys::EOF_ACTION;
 }
 
@@ -249,6 +251,7 @@ ParseTree Parser::parse()
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
+                
                 ParseTree child = parStack.pop();
                 child.root = ast;
                 ast->token.loc = child.token.loc;
