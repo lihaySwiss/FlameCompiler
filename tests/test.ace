@@ -1,4 +1,9 @@
+int hello := 0
+char hi := 6
+
 if (hello == 2)
 {
     bool flag := "c"
 }
+~hello i am comment
+hello := 12

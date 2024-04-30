@@ -26,7 +26,14 @@ void Lexer::readFromFile()
     }
 
     while (std::getline(file, line)) {
-        data += line + "\n"; // Append each line to the string
+        if(line[0] != '~')
+        {
+            data += line + "\n"; // Append each line to the string
+        }
+        else
+        {
+            LOC++;
+        }
     }
     
     // Analyizing each word recived from the file

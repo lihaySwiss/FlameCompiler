@@ -3,12 +3,12 @@
 
 enum tokId{
     UNDEFINED = -999,
-    ID_LITERAL = 0,
     ID_IDENTIFIER = 1,
     ID_NUMBER = 2,
     ID_IF_CONDITION = 4,
     ID_ELSE_CONDITION = 9,
     ID_WHILE_LOOP = 15,
+    ID_LITERAL = 17,
     ID_FOR_LOOP = 19,
     ID_CHAR = 24,
     ID_INT = 27,
@@ -37,7 +37,7 @@ enum tokId{
     LBRACE = 87,
     RBRACE = 89,
     ID_RETURN = 96,
-    ID_TRUE = 99,
+    ID_TRUE = 101,
     ID_FALSE = 106,
     ID_GIVE = 111,
     ID_EOF = 113
@@ -45,7 +45,7 @@ enum tokId{
 
 struct Token
 {
-    std::string token;
-    int type;
-    int loc;
+    std::string token; //lexeme
+    int type; //tokId from enum
+    int loc; //line of code
 } typedef Token;

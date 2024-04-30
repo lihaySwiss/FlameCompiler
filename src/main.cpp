@@ -10,7 +10,7 @@ int main(int argc, char const * argv[]) {
         //return 1;
     }
 
-    std::string path = "../tests/test.ace";
+    std::string path = "../tests/test4.ace";
     //std::string path = argv[1];
 
     Lexer *lexer = new Lexer(path);
@@ -21,10 +21,10 @@ int main(int argc, char const * argv[]) {
 
     parser->setInputList(lexer->getTokenList());
     parseTree = parser->parse();
-    //parser->printAST(parseTree, "", true);
+    parser->printAST(parseTree, "", true);
 
     SemanticAnalysis *semanticAnalysis = new SemanticAnalysis(&parseTree);
-    semanticAnalysis->semantic(&parseTree, 0);
+    semanticAnalysis->semanticHelper(&parseTree, 0);
     semanticAnalysis->printSymbolTable();
 
     return 0;

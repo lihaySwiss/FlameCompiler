@@ -1,16 +1,24 @@
-give int main() {    
+give char main() {    
 
-    int firstNumber := 'hello'
+    int firstNumber := 7
     int seconed_number
-
-    sum := firstNumber + seconed_number 
+    int sum := 0
+    char jj := 'c'
+    bool flag := true
 
     if (sum == 2)
     {
-        bool flag := 2
-        firstNumber := seconed_number
-        avg := (sum + firstNumber + seconed_number) / 3
+        int avg := (firstNumber + seconed_number) / 3
+    }
+
+    while (flag == true)
+    {
+        avg := avg + 1
+        if(avg > 10)
+        {
+            flag := false
+        }   
     }
     
-    return 0
+    return jj
 }

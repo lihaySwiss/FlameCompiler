@@ -7,10 +7,7 @@
 /************************/
 enum types
 {
-    VOID,
-    CHAR,
-    STRING,
-    BOOL,
-    INT,
-    FLOAT
+    INT = 2,
+    BOOL = 60,
+    CHAR = 17,
 };

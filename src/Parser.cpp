@@ -2,6 +2,13 @@
 
 Parser::Parser()
 {
+    setRuleList();
+    generateParseTables();
+    makeMap();
+}
+
+void Parser::setRuleList()
+{
     //definig program
     productions.push_back(Production(PROGRAM, {STATEMENT_LIST}));
 
@@ -20,10 +27,13 @@ Parser::Parser()
     productions.push_back(Production(STATEMENT, {FUNCTION}));
 
     //defining loops and conditions
-    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION, CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(FOR_STATEMENT, {FOR_ACTION, LPARAN_ACTION, ASSIGNMENT, SEMI_COLON_ACTION,
+     CONDITION, SEMI_COLON_ACTION, EXPRESSION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
     productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
-    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
-    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(IF_STATEMENT, {IF_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, LBRACE_ACTION, 
+    STATEMENT_LIST, RBRACE_ACTION, ELSE_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(WHILE_STATEMENT, {WHILE_ACTION, LPARAN_ACTION, CONDITION, RPARAN_ACTION, 
+    LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
     
     //defining declarations
     productions.push_back(Production(DECELERATION_STATEMENT, {TYPE, IDENTIFIER_ACTION, ASSIGNMENT_ACTION, EXPRESSION}));
@@ -47,8 +57,9 @@ Parser::Parser()
     //defining factors
     productions.push_back(Production(FACTOR, {NUMBER_ACTION}));
     productions.push_back(Production(FACTOR, {IDENTIFIER_ACTION}));
-    productions.push_back(Production(FACTOR, {LITERAL}));
+    productions.push_back(Production(FACTOR, {LITERAL_ACTION}));
     productions.push_back(Production(FACTOR, {LPARAN_ACTION, EXPRESSION, RPARAN_ACTION}));
+    productions.push_back(Production(FACTOR, {BOOL_TYPE}));
 
     //defining conditions
     productions.push_back(Production(CONDITION, {EXPRESSION, RELATIONAL_OPERATOR, EXPRESSION}));
@@ -81,8 +92,10 @@ Parser::Parser()
     productions.push_back(Production(RETURN_STATEMENT, {RETURN_ACTION, FACTOR}));
 
     //defining functions
-    productions.push_back(Production(FUNCTION, {GIVE_ACTION, TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, INPUT_VAR_LIST, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RETURN_STATEMENT ,RBRACE_ACTION}));
-    productions.push_back(Production(FUNCTION, {GIVE_ACTION, VOID_TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
+    productions.push_back(Production(FUNCTION, {GIVE_ACTION, TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, INPUT_VAR_LIST,
+     RPARAN_ACTION, LBRACE_ACTION, STATEMENT_LIST, RETURN_STATEMENT ,RBRACE_ACTION}));
+    productions.push_back(Production(FUNCTION, {GIVE_ACTION, VOID_TYPE, IDENTIFIER_ACTION, LPARAN_ACTION, RPARAN_ACTION,
+     LBRACE_ACTION, STATEMENT_LIST, RBRACE_ACTION}));
 
     //defining input var list
     productions.push_back(Production(INPUT_VAR_LIST, {INPUT_VAR}));
@@ -91,9 +104,9 @@ Parser::Parser()
 
     //defining input var
     productions.push_back(Production(INPUT_VAR, {TYPE, IDENTIFIER_ACTION}));
-    
-    generateParseTables();
-    makeMap();
+
+    productions.push_back(Production(BOOL_TYPE, {TRUE_ACTION}));
+    productions.push_back(Production(BOOL_TYPE, {FALSE_ACTION}));
 }
 
 
@@ -128,7 +141,9 @@ void Parser::makeMap()
     this->tokenActions[ID_INT] = actionTableKeys::INT_ACTION;
     this->tokenActions[ID_BOOL] = actionTableKeys::BOOL_ACTION;
     this->tokenActions[ID_VOID] = actionTableKeys::VOID_ACTION;
-    this->tokenActions[ID_LITERAL] = actionTableKeys::LITERAL;
+    this->tokenActions[ID_TRUE] = actionTableKeys::TRUE_ACTION;
+    this->tokenActions[ID_FALSE] = actionTableKeys::TRUE_ACTION;
+    this->tokenActions[ID_LITERAL] = actionTableKeys::LITERAL_ACTION;
 
     //operators
     this->tokenActions[BINOP_DIV] = actionTableKeys::DIV_ACTION;
@@ -195,12 +210,16 @@ ParseTree Parser::parse()
         action = this->actionGoTable[state][tokenCode];
         
         //print state, token, action for debugging
-        //cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
+        cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
 
         if(action == "acc")
         {
             cout << "accepted" << endl;
-            return parStack.pop();
+            ParseTree prog;
+            prog.value = PROGRAM;
+            prog.token = Token{"PROGRAM", PROGRAM};
+            prog.children.push_back(parStack.pop());
+            return prog;
         }
         else if(action[0] == 's')
         {
@@ -219,28 +238,30 @@ ParseTree Parser::parse()
             auto it = std::next(productions.begin(), productionNum);
             production = *it;
 
-            ParseTree node;
-            node.value = production.left;
-            
+            Token *token = new Token();
+            token->token = non_terminal_words[production.left - NT_OFFSET];
+            token->type = production.left;
+
+            ParseTree *ast = new ParseTree(token);
+            ast->token = *token;
+        
             //poping from stack and adding to children
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
                 ParseTree child = parStack.pop();
-                child.root = &node;
-                node.children.insert(node.children.begin(), child);
-                node.token = token;
-                node.size++;         
+                child.root = ast;
+                ast->token.loc = child.token.loc;
+                ast->children.insert(ast->children.begin(), child);    
             }
             //pushing the node to node stack
-            parStack.push(node);
+            parStack.push(*ast);
             
             //getting next state from goto table and pushing it to stack
             state = this->tokenStack.peek();
             nonTerminal = production.left;
             nextStateStr = this->actionGoTable[state][nonTerminal];
             this->tokenStack.push(stoi(nextStateStr));
-
         }
         else
         {
@@ -255,15 +276,8 @@ ParseTree Parser::parse()
 // input: ParseTree node, string prefix, bool isLast
 // output: none
 void Parser::printAST(ParseTree& root, string prefix, bool isLast) {
-  if(root.value >= NT_OFFSET)  
-        cout << prefix << (isLast ? "└── " : "├── ") << non_terminal_words[root.value - NT_OFFSET - 1] << endl;
-  else
-        cout << prefix << (isLast ? "└── " : "├── ") << terminal_words[root.value] << endl;
-
-  if (!root.children.empty()) {
-    for (size_t i = 0; i < root.children.size(); ++i) {
-      // Pass the child node directly, not its reference
-      printAST(root.children[i], prefix + (isLast ? "   " : "│  "), i == root.children.size() - 1);
+    cout << prefix << (isLast ? "└── " : "├── ") << root.token.token << endl;
+    for (int i = 0; i < root.children.size(); i++) {
+        printAST(root.children[i], prefix + (isLast ? "    " : "│   "), i == root.children.size() - 1);
     }
-  }
 }

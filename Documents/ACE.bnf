@@ -35,7 +35,7 @@ bitop ::=  & | >> | << | |
 
 return_statement ::= return factor
 
-function ::= type identifier ( input_var_list ) { statement_list return_statement } |
+function ::= give type identifier ( input_var_list ) { statement_list return_statement } |
              void_type identifier ( input_var_list ) { statement_list }
 
 input_var_list ::= input_var | input_var , input_var_list | ''
