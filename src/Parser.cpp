@@ -251,10 +251,9 @@ ParseTree Parser::parse()
             for(int i = 0; i < production.right.size(); i++)
             {
                 this->tokenStack.pop();
-                
+
                 ParseTree child = parStack.pop();
                 child.root = ast;
-                ast->token.loc = child.token.loc;
                 ast->children.insert(ast->children.begin(), child);    
             }
             //pushing the node to node stack
@@ -275,6 +274,17 @@ ParseTree Parser::parse()
     return ParseTree();
 }
 
+void ParseTree::setReg(RegisterEntry reg)
+{
+    this->reg = reg;
+}
+
+RegisterEntry ParseTree::getReg()
+{
+    return this->reg;
+}
+
+
 // Function to print the tree in level order
 // input: ParseTree node, string prefix, bool isLast
 // output: none
@@ -284,3 +294,4 @@ void Parser::printAST(ParseTree& root, string prefix, bool isLast) {
         printAST(root.children[i], prefix + (isLast ? "    " : "│   "), i == root.children.size() - 1);
     }
 }
+

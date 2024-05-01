@@ -2,6 +2,7 @@
 #include "../headers/DFA.hpp"
 #include "../headers/Parser.hpp"
 #include "../headers/SemanticAnalysis.hpp"
+#include "../headers/CodeGen.hpp"
 
 int main(int argc, char const * argv[]) {
     
@@ -26,6 +27,9 @@ int main(int argc, char const * argv[]) {
     SemanticAnalysis *semanticAnalysis = new SemanticAnalysis(&parseTree);
     semanticAnalysis->semanticHelper(&parseTree, 0);
     semanticAnalysis->printSymbolTable();
+
+    CodeGen *codeGen = new CodeGen(path, semanticAnalysis->getSymbolTable());
+    codeGen->generate(&parseTree);
 
     return 0;
 }

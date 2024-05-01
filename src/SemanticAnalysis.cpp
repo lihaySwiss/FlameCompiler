@@ -212,4 +212,3 @@ int SemanticAnalysis::identifyType(Token *token)
         return INT;
     }
 }
-

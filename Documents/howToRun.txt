@@ -1,0 +1,6 @@
+1. write a file with .ace in type
+2. go to output file with .asm
+3. install nasm  <sudo apt install nasm>
+4. assmble with  <nasm -f elf32 file.asm -o file.o>
+5. link with <ld -m elf_i386 file.o -o file>
+6. run with <./file>

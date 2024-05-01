@@ -3,6 +3,7 @@
 #include "Token.hpp"
 #include "Production.hpp"
 #include "types.hpp"
+#include "RegisterEntry.hpp"
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -66,16 +67,18 @@ class ParseTree{
 public:
     ParseTree* root;
     int value;
-    int size;
     Token token;
     std::vector<ParseTree> children;
     types type;
+    RegisterEntry reg;  
+    void setRoot(Token *root);                 
+    void setReg(RegisterEntry reg);                 
+    RegisterEntry getReg();                         
 
     ParseTree()
     {
         this->root = NULL; // create a new token
         this->children = {}; // assign an empty vector to children
-        this->size = 0; // size of the tree
     }
 
     ParseTree(Token *root)
@@ -88,7 +91,6 @@ public:
         newRoot->type = root->type;
         this->root->token = *newRoot;
         this->children = {}; // children of the root
-        this->size = 0; // size of the tree
     }
 
 };
