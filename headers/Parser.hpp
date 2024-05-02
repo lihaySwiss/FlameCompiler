@@ -69,7 +69,6 @@ public:
     int value;
     Token token;
     std::vector<ParseTree> children;
-    types type;
     RegisterEntry reg;                  
     void setReg(RegisterEntry reg);                 
     RegisterEntry getReg();                         

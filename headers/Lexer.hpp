@@ -43,4 +43,7 @@ public:
     /// @brief  Function to get the token list
     /// @return  list<Token>
     list<Token> getTokenList() { return this->tokenList; }
+
+    bool isListedValue(int numToCheck);
+
 };

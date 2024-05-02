@@ -1,13 +1,6 @@
-int hi := 8
-    for(hi := 5; hi == 20; hi-1)
-    {
-        if (hi == 2)
-        {
-            bool flag := true
-            int he := 12
-        }
-    }
+int ch := 21
+
 
 ~scream('hello world')
 scream(5)
-scream(hi)
+scream(ch)

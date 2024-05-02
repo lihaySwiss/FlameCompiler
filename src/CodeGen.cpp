@@ -93,16 +93,8 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
     if (tree->value == PRINT_STATEMENT) // if the root is an out function
     {
         RegisterEntry reg = generateExpression(&tree->children.at(2)); // generate the expression
-        if(tree->children.at(2).token.type == ID_LITERAL)
+        if(tree->children.at(2).token.type == ID_IDENTIFIER)
         {
-
-            /*
-                mov eax, 4           ; System call number (write)
-                mov ebx, 1           ; File descriptor (stdout)
-                mov ecx, message   ; String address to print
-                mov edx, strlen message  ; String length (including null terminator)
-                int 0x80 
-            */
             addCode("\tmov [savedMemoryForPrinting], " + reg.name + "\n");
             addCode("\tpusha\n");
             addCode("\tmov eax, 4\n");
@@ -111,6 +103,7 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             addCode("\tmov edx, 2\n");
             addCode("\tint 0x80\n");
             addCode("\tpopa\n");
+            
         }
         else if (tree->children.at(2).token.type == ID_NUMBER) // if the type is int
         {
@@ -124,11 +117,10 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             addCode("\tmov ebx, 1\n");
             addCode("\tint 0x80\n");    
         }
-        else if(tree->children.at(2).token.type == ID_IDENTIFIER)
+        else if(tree->children.at(2).token.type == ID_LITERAL)
         {
 
         }
-        freeRegister(reg); // free the register
         return;
     }
     if (tree->value == WHILE_STATEMENT) // if the root is a loop

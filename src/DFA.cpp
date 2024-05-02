@@ -65,7 +65,7 @@ void DFA::addTokens(const std::string &token)
         mat[currState][token[i]] = freeState;
 
         //for debugging: print all keywords and their state
-        std::cout << token << ":" << freeState << std::endl;
+        //std::cout << token << ":" << freeState << std::endl;
 
         currState = freeState;
         freeState++;

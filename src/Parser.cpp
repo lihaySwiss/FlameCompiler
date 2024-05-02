@@ -255,6 +255,7 @@ ParseTree Parser::parse()
 
                 ParseTree child = parStack.pop();
                 child.root = ast;
+                ast->token.loc = child.token.loc;
                 ast->children.insert(ast->children.begin(), child);    
             }
             //pushing the node to node stack

@@ -161,14 +161,15 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
     }
     else if (token->type == PRINT_STATEMENT)
     {
-        auto symbol = symbolTable.find(Symbol(tree->children.at(2).children.at(0).children.at(0).token.token, 0, 0, 0));                          // Find the identifier in the symbol table
-        if ((symbol == symbolTable.end() || symbol->scope > scope || symbol->line > token->loc) && tree->children.at(2).token.type != ID_LITERAL) // Check if the identifier is undeclared
+        if(tree->children.at(0).token.type == ID_IDENTIFIER)
         {
-            std::cerr << "Undeclared variable " + tree->children.at(2).children.at(0).children.at(0).token.token + " in line: " << token->loc << std::endl;
+            auto symbol = symbolTable.find(Symbol(tree->children.at(2).children.at(0).children.at(0).token.token, 0, 0, 0));                          // Find the identifier in the symbol table
+            if ((symbol == symbolTable.end() || symbol->scope > scope || symbol->line > token->loc) && tree->children.at(2).token.type != ID_LITERAL) // Check if the identifier is undeclared
+            {
+                std::cerr << "Undeclared variable " + tree->children.at(2).children.at(0).children.at(0).token.token + " in line: " << token->loc << std::endl;
+            }
         }
     }
-
-    //tree->root->token = *token; // Set the root of the tree
     return tree;
 }
 

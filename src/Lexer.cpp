@@ -50,12 +50,12 @@ void Lexer::readFromFile()
     }
 
     //Printing results for debugging
-    for (Token token : this->tokenList)
-    {
-        std::cout << token.token << " ";
-        std::cout << returnTokenString(token.type) << " ";
-        std::cout << to_string(token.type) << std::endl;
-    }
+    // for (Token token : this->tokenList)
+    // {
+    //     std::cout << token.token << " ";
+    //     std::cout << returnTokenString(token.type) << " ";
+    //     std::cout << to_string(token.type) << std::endl;
+    // }
 }
 
 Token Lexer::analyze(std::string data, int loc)
@@ -113,10 +113,10 @@ Token Lexer::analyze(std::string data, int loc)
         
     }
 
-    // if(state != 1 && mat[state][data[i]] != -1 && t->token.size() > 1)
-    // {
-    //     state = 1;
-    // }
+    if(!isListedValue(t->type) && t->type != -1)
+    {
+        t->type = 1;
+    }
 
     t->token = result;
 
@@ -241,4 +241,46 @@ std::string Lexer::returnTokenString(int code)
             return "IDENTIFIER";
 
     }
+}
+bool Lexer::isListedValue(int numToCheck) {
+  return numToCheck == UNDEFINED ||
+         numToCheck == ID_LITERAL ||
+         numToCheck == ID_IDENTIFIER ||
+         numToCheck == ID_NUMBER ||
+         numToCheck == ID_IF_CONDITION ||
+         numToCheck == ID_ELSE_CONDITION ||
+         numToCheck == ID_WHILE_LOOP ||
+         numToCheck == ID_FOR_LOOP ||
+         numToCheck == ID_CHAR ||
+         numToCheck == ID_INT ||
+         numToCheck == ID_BOOL ||
+         numToCheck == ID_VOID ||
+         numToCheck == BINOP_DIV ||
+         numToCheck == BINOP_PLUS ||
+         numToCheck == BINOP_MINUS ||
+         numToCheck == BINOP_MULT ||
+         numToCheck == AND_OP ||
+         numToCheck == LOGIC_AND ||
+         numToCheck == LOGIC_OR ||
+         numToCheck == EQUAL ||
+         numToCheck == SMALLER ||
+         numToCheck == BIGEER ||
+         numToCheck == SMALLER_EQUAL ||
+         numToCheck == BIGEER_EQUAL ||
+         numToCheck == NOT_EQ ||
+         numToCheck == DEFINE_VAR ||
+         numToCheck == SEMI_COLON ||
+         numToCheck == APOSTROPHE ||
+         numToCheck == QUOTES_TOKEN ||
+         numToCheck == COMMA_TOKEN ||
+         numToCheck == LPARAN ||
+         numToCheck == RPARAN ||
+         numToCheck == LBRACE ||
+         numToCheck == RBRACE ||
+         numToCheck == ID_RETURN ||
+         numToCheck == ID_TRUE ||
+         numToCheck == ID_FALSE ||
+         numToCheck == ID_GIVE ||
+         numToCheck == ID_PRINT ||
+         numToCheck == ID_EOF;
 }
