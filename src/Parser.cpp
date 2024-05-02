@@ -246,6 +246,7 @@ ParseTree Parser::parse()
 
             ParseTree *ast = new ParseTree(token);
             ast->token = *token;
+            ast->value = production.left;
         
             //poping from stack and adding to children
             for(int i = 0; i < production.right.size(); i++)
@@ -289,7 +290,7 @@ RegisterEntry ParseTree::getReg()
 // input: ParseTree node, string prefix, bool isLast
 // output: none
 void Parser::printAST(ParseTree& root, string prefix, bool isLast) {
-    cout << prefix << (isLast ? "└── " : "├── ") << root.token.token << endl;
+    cout << prefix << (isLast ? "└── " : "├── ") << root.token.token << " " << root.value << endl;
     for (int i = 0; i < root.children.size(); i++) {
         printAST(root.children[i], prefix + (isLast ? "    " : "│   "), i == root.children.size() - 1);
     }

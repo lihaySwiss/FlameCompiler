@@ -11,7 +11,7 @@ int main(int argc, char const * argv[]) {
         //return 1;
     }
 
-    std::string path = "../tests/test2.ace";
+    std::string path = "../tests/test3.ace";
     //std::string path = argv[1];
 
     Lexer *lexer = new Lexer(path);

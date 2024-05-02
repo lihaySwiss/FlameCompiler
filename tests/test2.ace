@@ -1,2 +1,17 @@
-char gg := 'l'
-scream('v')
+char gg := 'd'
+int g_ := 90
+
+g_ := gg
+
+if(gg > 10)
+{
+    scream(':(')    
+}
+
+scream(' h')
+scream('e')
+scream('l')
+scream('l')
+scream('o ')
+
+

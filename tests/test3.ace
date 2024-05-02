@@ -1,11 +1,13 @@
-while(flag == hot)
-{
+int hi := 8
     for(hi := 5; hi == 20; hi-1)
     {
         if (hi == 2)
         {
-            bool flag := 2
-            int he := flag
+            bool flag := true
+            int he := 12
         }
     }
-}
+
+~scream('hello world')
+scream(5)
+scream(hi)

@@ -60,7 +60,7 @@ const string terminal_words[] = {
     "NOTEQ_ACTION", "SMALLER_ACTION","BIGGER_ACTION", "SMALLER_EQUAL_ACTION", "BIGGER_EQUAL_ACTION",
     "MINUS_ACTION","PLUS_ACTION", "MULT_ACTION", "DIV_ACTION", "UNARY_PLUS_ACTION", "UNARY_MINUS_ACTION",
     "OR_ACTION", "AND_ACTION", "SHR_ACTION", "SHL_ACTION", "RETURN_ACTION", "GIVE_ACTION", "COMMA_ACTION", 
-    "TRUE_ACTION", "FALSE_ACTION" ,"EOF_ACTION"};
+    "TRUE_ACTION", "FALSE_ACTION", "PRINT_ACTION" ,"EOF_ACTION"};
 
 
 class ParseTree{
@@ -70,8 +70,7 @@ public:
     Token token;
     std::vector<ParseTree> children;
     types type;
-    RegisterEntry reg;  
-    void setRoot(Token *root);                 
+    RegisterEntry reg;                  
     void setReg(RegisterEntry reg);                 
     RegisterEntry getReg();                         
 

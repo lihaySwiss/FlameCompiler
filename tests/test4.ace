@@ -1,24 +1,6 @@
-give char main() {    
-
-    int firstNumber := 7
-    int seconed_number
-    int sum := 0
-    char jj := 'c'
-    bool flag := true
-
-    if (sum == 2)
-    {
-        int avg := (firstNumber + seconed_number) / 3
-    }
-
-    while (flag == true)
-    {
-        avg := avg + 1
-        if(avg > 10)
-        {
-            flag := false
-        }   
-    }
-    
-    return jj
+void main()
+{
+    int a 
+    int gg := 83
+    int sun := a + gg
 }

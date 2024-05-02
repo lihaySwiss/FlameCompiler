@@ -3,12 +3,12 @@
 
 enum tokId{
     UNDEFINED = -999,
+    ID_LITERAL = 0,
     ID_IDENTIFIER = 1,
     ID_NUMBER = 2,
     ID_IF_CONDITION = 4,
     ID_ELSE_CONDITION = 9,
     ID_WHILE_LOOP = 15,
-    ID_LITERAL = 17,
     ID_FOR_LOOP = 19,
     ID_CHAR = 24,
     ID_INT = 27,

@@ -103,7 +103,8 @@ Token Lexer::analyze(std::string data, int loc)
             tokenList.push_back(*t);
             return (*t);
         }
-        // the type will be the most recent valid state
+
+        //the type will be the most recent valid state
         t->type = state;
         result += data[i]; 
         
@@ -111,6 +112,11 @@ Token Lexer::analyze(std::string data, int loc)
         state = mat[state][data[i]];
         
     }
+
+    // if(state != 1 && mat[state][data[i]] != -1 && t->token.size() > 1)
+    // {
+    //     state = 1;
+    // }
 
     t->token = result;
 

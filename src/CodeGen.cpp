@@ -14,6 +14,9 @@ bool CodeGen::generate(ParseTree *parseTree)
         {
             outputFile << line;
         }
+        outputFile << "\tmov eax, 1\n";
+        outputFile << "\tmov ebx, 0\n";
+        outputFile << "\tint 0x80\n";   // exit the program
     }
     else
     {
@@ -63,39 +66,44 @@ void CodeGen::generateIdentifiers(ofstream &file)
 
 void CodeGen::generateCodeFromAST(ParseTree *tree)
 {
-    Token *root = &tree->token; // get the root of the ParseTree
-    if (root->token == "ASSIGNMENT")  // if the root is an assignment
+    Token *token = &tree->token; // get the root of the AST
+    if (tree->value == ASSIGNMENT)  // if the root is an assignment
     {
-        Token *identifier = &tree->children.at(0).root->token;     // get the identifier
-        RegisterEntry reg = generateExpression(&tree->children.at(2).children.at(0)); // generate the expression
-        addCode("\tmov [" + identifier->token + "], " + reg.name + "\n");
+        //mov eax, 1234
+        //mov [myValue], eax
+        RegisterEntry reg = getRegister(); // get a register
+        addCode("\tmov " +  reg.name + ", " + tree->children.at(2).children.at(0).children.at(0).token.token + "\n");
+        addCode("\tmov [" + tree->children.at(0).token.token + "], " + reg.name + "\n");
         freeRegister(reg); // free the register
         return;
     }
-
-    if(root->token == "DECELERATION_STATEMENT")
+    if (tree->value == DECELERATION_STATEMENT) // if the root is a declaration
     {
-        Token *identifier = &tree->children.at(1).token; // get the identifier
-        Token *type = &tree->children.at(0).children.at(0).root->token; // get the type
-        RegisterEntry reg = generateExpression(&tree->children.at(3)); // generate the expression
-        addCode("\tmov [" + identifier->token + "], " + reg.name + "\n");
-        freeRegister(reg); // free the register
-
-        return; 
-    }
-
-    if (root->token == "EXPRESSION") // if the root is an expression
-    {
-        generateExpression(tree); // generate code for expression
+        if (tree->children.size() == 4) {
+            RegisterEntry reg = generateExpression(&tree->children.at(3));
+            addCode("\tmov [" + tree->children.at(1).token.token + "], " + reg.name + "\n");
+            freeRegister(reg);
+        }
         return;
     }
-    if (root->token == "PRINT_STATEMENT") // if the root is an out function
+    if (tree->value == EXPRESSION) // if the root is an expression
+    {
+        return;
+    }
+    if (tree->value == PRINT_STATEMENT) // if the root is an out function
     {
         RegisterEntry reg = generateExpression(&tree->children.at(2)); // generate the expression
-        Token tok = tree->children.at(2).children.at(0).children.at(0).token;    // get the type of the expression
-        if (tok.type == CHAR && reg.name != "")                                     // if the type is char
+        if(tree->children.at(2).token.type == ID_LITERAL)
         {
-            addCode("\tmov [savedMemoryForPrinting], " + reg.name + "\n"); // move the result to the temporary variable
+
+            /*
+                mov eax, 4           ; System call number (write)
+                mov ebx, 1           ; File descriptor (stdout)
+                mov ecx, message   ; String address to print
+                mov edx, strlen message  ; String length (including null terminator)
+                int 0x80 
+            */
+            addCode("\tmov [savedMemoryForPrinting], " + reg.name + "\n");
             addCode("\tpusha\n");
             addCode("\tmov eax, 4\n");
             addCode("\tmov ebx, 1\n");
@@ -103,90 +111,36 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             addCode("\tmov edx, 2\n");
             addCode("\tint 0x80\n");
             addCode("\tpopa\n");
-
-        }    
-        else if (tok.type == INT) // if the type is int
-        {
-            addCode("\tmov eax, " + reg.name + "\n"); // move the result to eax
-            addCode("loop_start:\n");         // call the print decimal function
-            addCode("\tmov edx, 0 \n");
-            addCode("\tdiv tenDividerForPrintingNumbers\n");
-            addCode("\t add edx, '0'\n");
-            addCode("\tcmp eax, 0\n");
-            addCode("\tjne loop_start\n");
         }
-        else if(tok.type == CHAR)
+        else if (tree->children.at(2).token.type == ID_NUMBER) // if the type is int
         {
-            addCode("\tmov eax," + tok.token + "\n");
-            addCode("\tpusha\n");
+            addCode("loop_start" + to_string(labelCount) + ":\n");
+            addCode("\tmov edx, 0\n");
+            addCode("\tdiv word [tenDividerForPrintingNumbers]\n");      
+            addCode("\tadd edx, '0'\n"); 
+            addCode("\tcmp eax, 0\n");  
+            addCode("\tjne loop_start" + to_string(labelCount++) + "\n"); 
             addCode("\tmov eax, 4\n");
             addCode("\tmov ebx, 1\n");
-            addCode("\tmov ecx, savedMemoryForPrinting\n");
-            addCode("\tmov edx, 2\n");
-            addCode("\tint 0x80\n");
-            addCode("\tpopa\n");
+            addCode("\tint 0x80\n");    
+        }
+        else if(tree->children.at(2).token.type == ID_IDENTIFIER)
+        {
 
         }
-        freeRegister(reg); // free the register        return;
-    }
-    if (root->token == "FOR_STATEMENT" || root->token == "WHILE_STATEMENT") // if the root is a loop
-    {
-        int loopType = tree->children.at(0).root->token.type; // get the loop type
-        if (loopType == FOR_STATEMENT)                               // if the loop type is for
-        {
-            Token *count = &tree->children.at(2).root->token; // get the count token
-            int typeCode = count->type;                      // get the type code
-            int labelC = this->labelCount++;                     // get the label count
-            RegisterEntry reg = getRegister();                        // get a register
-            addCode("\tmov " + reg.name + ", " + count->token + "\n");
-            addCode("for_loop_" + to_string(labelC) + ":\n");
-            addCode("\tpush " + reg.name + "\n");
-            generateCodeFromAST(&tree->children.at(5)); // generate code for the body
-            addCode("\tpop " + reg.name + "\n");
-            addCode("\tdec " + reg.name + "\n");
-            addCode("\tjnz for_loop_" + to_string(labelC) + "\n"); // generate code for for loop
-            return;
-        }
-        else if (loopType == WHILE_STATEMENT) // if the loop type is while
-        {
-            int count = this->labelCount++; // get the label count
-            addCode("while_" + to_string(count) + ":\n");
-            RegisterEntry reg = generateExpression(&tree->children.at(2).children.at(0)); // generate the expression
-            addCode("\tcmp " + reg.name + ", 0\n");
-            addCode("\tjz end_" + to_string(count) + "\n");
-            generateCodeFromAST(&tree->children.at(5)); // generate code for the body
-            addCode("\tjmp while_" + to_string(count) + "\n");
-            addCode("end_" + to_string(count) + ":\n");
-            freeRegister(reg); // free the register
-            return;
-        }
-    }
-    if (root->token == "CONDITION") // if the root is a conditional
-    {
-        if (tree->children.size() == 7) // regular if
-        {
-            RegisterEntry reg = generateExpression(&tree->children.at(2).children.at(0)); // generate the expression
-            addCode("\tcmp " + reg.name + ", 0\n");
-            int count = this->labelCount++; // get the label count
-            addCode("\tjz end_" + to_string(count) + "\n");
-            generateCodeFromAST(&tree->children.at(5)); // generate code for the body
-            addCode("end_" + to_string(count) + ":\n");
-            freeRegister(reg); // free the register
-        }
-        else
-        {                                                                      // if with else
-        ParseTree *cond = &tree->children.at(0);                                  // get the condition
-        RegisterEntry reg = generateExpression(&cond->children.at(2).children.at(0)); // generate the expression
-        addCode("\tcmp " + reg.name + ", 0\n");
-        int count = this->labelCount++; // get the label count
-        addCode("\tjz else_" + to_string(count) + "\n");
-        generateCodeFromAST(&cond->children.at(5)); // generate code for the if body
-        addCode("\tjmp end_" + to_string(count) + "\n");
-        addCode("else_" + to_string(count) + ":\n");
-        generateCodeFromAST(&tree->children.at(3)); // generate code for the else body
-        addCode("end_" + to_string(count) + ":\n");
         freeRegister(reg); // free the register
+        return;
     }
+    if (tree->value == WHILE_STATEMENT) // if the root is a loop
+    {
+        return;
+    }
+    if (tree->value == FOR_STATEMENT)
+    {
+        return;
+    }
+    if (tree->value == CONDITION) // if the root is a conditional
+    {
         return;
     }
     for (ParseTree child : tree->children) // generate code for each child
@@ -197,17 +151,17 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
 
 RegisterEntry CodeGen::generateExpression(ParseTree *expression)
 {
-    Token *root = &expression->token;                   // get the root of the expression
-    if (root->type == ID_IDENTIFIER || root->type == ID_LITERAL) // if the root is an identifier or literal
+   
+    // ParseTree *root = expression;                   // get the root of the expression
+    if (expression->value == IDENTIFIER_ACTION || expression->value == LITERAL_ACTION || expression->value == NUMBER_ACTION) // if the expression is an identifier or literal
     {
         RegisterEntry reg = getRegister();
-        root = &expression->children.at(0).children.at(0).token;
-        addCode("\tmov " + reg.name + ", " + (root->type == ID_IDENTIFIER ? "[" + root->token + "]" : root->token) + "\n");
+        addCode("\tmov " + reg.name + ", " + (expression->token.type == IDENTIFIER_ACTION ? "[" + expression->token.token + "]" : expression->token.token) + "\n");
         expression->setReg(reg);
     }
-    else if (root->type == EXPRESSION) // if the root is an expression
+    else if (expression->value == EXPRESSION) // if the expression is an expression
     {
-        for (ParseTree child : expression->children) // generate code for each child
+        for (ParseTree& child : expression->children) // generate code for each child
         {
             generateExpression(&child);
         }
@@ -215,7 +169,7 @@ RegisterEntry CodeGen::generateExpression(ParseTree *expression)
         {
             RegisterEntry lreg = expression->children.at(0).getReg();     // get the left register
             RegisterEntry rreg = expression->children.at(2).getReg();     // get the right register
-            string op = expression->children.at(1).root->token.token; // get the operator
+            string op = expression->children.at(1).children.at(0).token.token; // get the operator
             if (op == "+")                                         // if the operator is addition
             {
                 addCode("\tadd " + lreg.name + ", " + rreg.name + "\n");
@@ -401,7 +355,7 @@ RegisterEntry CodeGen::generateExpression(ParseTree *expression)
             expression->setReg(expression->children.at(0).getReg());
         }
     }
-    else if (root->type == FACTOR) // if the root is a term
+    else if (expression->value == FACTOR) // if the expression is a term
     {
         if (expression->children.size() == 1) // if the expression has only one child
         {
@@ -503,7 +457,4 @@ void CodeGen::addCode(string code)
 {
     this->code.push_back(code); // add the code to the code vector
 }
-
-
-
 

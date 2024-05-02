@@ -11,6 +11,7 @@ statement -> for_statement
 statement -> expression
 statement -> return_statement
 statement -> function
+statement -> print_statement
 
 for_statement -> for ( assignment ; condition ; expression ) { statement_list }
 
@@ -77,4 +78,4 @@ input_var -> type identifier
 bool_type -> true
 bool_type -> false
 
-print -> scream ( expression )
+print_statement -> scream ( expression )

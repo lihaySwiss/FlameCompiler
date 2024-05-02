@@ -8,6 +8,6 @@
 enum types
 {
     INT = 2,
-    BOOL = 60,
-    CHAR = 17,
+    BOOL = 61,
+    CHAR = 0,
 };

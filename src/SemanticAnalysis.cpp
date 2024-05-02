@@ -33,6 +33,7 @@ Token token = tree->token; // Get the token of the tree
             std::cerr << "Variable " + identifier + " already declared, line: " << tree->children.at(0).token.loc << std::endl;
         }
         symbolTable.insert(Symbol(identifier, typeCode, scope, tree->children.at(1).token.loc)); // Insert the variable into the symbol table
+        
     }
 }
 
@@ -72,6 +73,7 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
     }
     
     Token* token = &tree->token;
+
     if (token->type == ID_IDENTIFIER && tree->root->token.type != FUNCTION && tree->root->token.type)    
     {
         auto symbol = symbolTable.find(Symbol(token->token, 0, 0, 0));                          // Find the identifier in the symbol table
@@ -79,10 +81,7 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
         {
             std::cerr << "Undeclared variable " + token->token + " in line: " << token->loc << std::endl;
         }
-        else
-        {
-            token->type = symbol->type; // Set the type code of the identifier
-        }
+
     }
     else if (token->type == LITERAL_ACTION)
     {
@@ -97,22 +96,24 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
     }
     else if (token->type == ASSIGNMENT)
     {
-        if (tree->children.at(0).token.type != tree->children.at(2).token.type) // Check for type errors in the assignment
+        int varType = symbolTable.find(Symbol(tree->children.at(0).token.token, 0,0,0))->type;
+        if (varType != tree->children.at(2).token.type) // Check for type errors in the assignment
         {
             std::cerr << "Invalid Type Error: Cannot assign " + 
             getSymbolType(tree->children.at(2).token.type) + " to identifer " + tree->children.at(0).token.token + " (" +
-            getSymbolType(tree->children.at(0).token.type) + ")" + " in line: " << tree->children.at(0).token.loc << std::endl;
+            getSymbolType(varType) + ")" + " in line: " << tree->children.at(0).token.loc << std::endl;
         }
     }
 
     else if (token->type == DECELERATION_STATEMENT)
     {
-        if (tree->children.size() == 4 && mapOfTypes[tree->children.at(0).children.at(0).token.token] != tree->children.at(3).token.type) // Check for type errors in the assignment
+        if (tree->children.size() == 4 && (mapOfTypes[tree->children.at(0).children.at(0).token.token] != tree->children.at(3).token.type)) // Check for type errors in the assignment
         {
             std::cerr << "Invalid Type Error: Cannot assign " + 
             getSymbolType(tree->children.at(3).token.type) + " to identifer " + tree->children.at(1).token.token + " (" <<
             getSymbolType(mapOfTypes[tree->children.at(0).children.at(0).token.token]) << ") in line: " << tree->children.at(1).token.loc << std::endl;
         }
+        tree->children.at(1).token.type = mapOfTypes[tree->children.at(0).children.at(0).token.token];
     }
     else if(token->type == FUNCTION)
     {
@@ -133,10 +134,20 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
    
     else if (token->type == CONDITION) // Check if the token is a comparison operator
     {
-        if (tree->children.at(0).token.type != tree->children.at(2).token.type) // Check if the operands of the comparison operator are of the same type
+        if ((tree->children.at(0).token.type == LITERAL_ACTION ||  tree->children.at(0).token.type == NUMBER_ACTION )&&
+         tree->children.at(0).token.type != tree->children.at(2).token.type) // Check if the operands of the comparison operator are of the same type
         {
             std::cerr << "Invalid Type Error: Cannot compare " + 
-            getSymbolType(tree->children.at(0).token.type) + " with " + getSymbolType(tree->children.at(2).token.type) + " in line: " << tree->children.at(2).token.loc << std::endl;
+            getSymbolType(tree->children.at(0).token.type) + " with " + getSymbolType(tree->children.at(2).token.type) + " in line: " << tree->children.at(0).token.loc << std::endl;
+        }
+        else if (tree->children.at(0).token.type == IDENTIFIER_ACTION)
+        {
+            auto var = symbolTable.find(Symbol(tree->children.at(0).token.token, 0,0,0));
+            if(var->type != tree->children.at(2).token.type) // Check if the operands of the comparison operator are of the same type
+            {
+                std::cerr << "Invalid Type Error: Cannot compare " + 
+                getSymbolType(tree->children.at(0).token.type) + " with " + getSymbolType(tree->children.at(2).token.type) + " in line: " << tree->children.at(2).token.loc << std::endl;  
+            }
         }
         token->type = BOOL_ACTION; // Set the type code of the comparison
     }
@@ -154,10 +165,6 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
         if ((symbol == symbolTable.end() || symbol->scope > scope || symbol->line > token->loc) && tree->children.at(2).token.type != ID_LITERAL) // Check if the identifier is undeclared
         {
             std::cerr << "Undeclared variable " + tree->children.at(2).children.at(0).children.at(0).token.token + " in line: " << token->loc << std::endl;
-        }
-        else
-        {
-            token->type = tree->children.at(2).token.type; // Set the type code of the identifier
         }
     }
 
