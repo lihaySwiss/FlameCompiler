@@ -212,7 +212,7 @@ ParseTree Parser::parse()
         action = this->actionGoTable[state][tokenCode];
         
         //print state, token, action for debugging
-        cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
+        //cout << "state: " << state << " token: " << tokenCode << " action: " << action << endl;
 
         if(action == "acc")
         {

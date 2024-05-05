@@ -81,6 +81,7 @@ ParseTree *SemanticAnalysis::semanticHelper(ParseTree *tree, int scope)
         {
             std::cerr << "Undeclared variable " + token->token + " in line: " << token->loc << std::endl;
         }
+        token->type = symbol->type; // Set the type code of the identifier
 
     }
     else if (token->type == LITERAL_ACTION)

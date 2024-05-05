@@ -1,6 +1,0 @@
-int ch := 21
-
-
-~scream('hello world')
-scream(5)
-scream(ch)

@@ -8,15 +8,14 @@ bool CodeGen::generate(ParseTree *parseTree)
     if (outputFile.is_open())
     {
         createBaseAsm(outputFile);
-        generateIdentifiers(outputFile);
         generateCodeFromAST(parseTree);
+        outputFile << "\n_start:\n";
         for (string line : code)
         {
             outputFile << line;
         }
-        outputFile << "\tmov eax, 1\n";
-        outputFile << "\tmov ebx, 0\n";
-        outputFile << "\tint 0x80\n";   // exit the program
+        generateExit(outputFile);
+        generateIdentifiers(outputFile);
     }
     else
     {
@@ -31,10 +30,13 @@ bool CodeGen::generate(ParseTree *parseTree)
 
 void CodeGen::exacuteNasm(string outputFileName)
 {
+    std::cout << "\nRunning following commands to run the code: "<<std::endl;
     // Command to execute (replace with your actual command)
     std::string assmble = "nasm -f elf32 " + outputFileName + " -o " + this->fileName.substr(0, fileName.size() - 4) + ".o";
-    std::string link = "ld -m elf_i386 " + this->fileName.substr(0, fileName.size() - 4) + ".o -o " + this->fileName.substr(0, fileName.size() - 4);
+    std::string link = "ld -m elf_i386 -s -o " + this->fileName.substr(0, fileName.size() - 4) + " "+ this->fileName.substr(0, fileName.size() - 4) + ".o";
     std::string run = "./" + this->fileName.substr(0, fileName.size() - 4);
+
+    std:cout << assmble << std::endl << link << std::endl << run << std::endl;
 
     // Execute the command using system
     bool returnCode = system(assmble.c_str());
@@ -42,26 +44,32 @@ void CodeGen::exacuteNasm(string outputFileName)
     bool returnCode3 = system(run.c_str());
 
     if (!(returnCode || returnCode2 || returnCode3)) {
-        std::cout << "Commands executed successfully." << std::endl;
+        std::cout << "\nCommands executed successfully." << std::endl;
     } else {
-        std::cerr << "Error executing one or more commands " << std::endl;
+        std::cerr << "\nError executing one or more commands " << std::endl;
     }
 }
 
 void CodeGen::createBaseAsm(ofstream &file)
 {
-    file << "BITS 32\nsection .text\nglobal _start\nsection .data" << std::endl;
+    file << "BITS 32\nsection .text\nglobal _start\n" << std::endl;
 } 
 
 void CodeGen::generateIdentifiers(ofstream &file)
 {
+    file << "\nsection .data\n";
     file << "\tsavedMemoryForPrinting db 100 dup(0)\n"; // write the temporary variable
-    file << "\ttenDividerForPrintingNumbers dw 10\n";         // write the divider
+    file << "\ttenDividerForPrintingNumbers dw 10\n";        // write the divider
+    
+    addData("newLineSavedMemory db 10, 0");
+    for(string str : data) //add the predefined data
+    {
+        file << "\t" << str << "\n";
+    }
     for (Symbol s : symbolTable)     // iterate over the symbol table
     {
         file << "\t" << s.name << (s.type == INT ? " dd 0\n" : " db 0\n"); // write the identifier
     }
-    file << "_start:\n"; // write the start label
 }
 
 void CodeGen::generateCodeFromAST(ParseTree *tree)
@@ -69,11 +77,9 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
     Token *token = &tree->token; // get the root of the AST
     if (tree->value == ASSIGNMENT)  // if the root is an assignment
     {
-        //mov eax, 1234
-        //mov [myValue], eax
-        RegisterEntry reg = getRegister(); // get a register
-        addCode("\tmov " +  reg.name + ", " + tree->children.at(2).children.at(0).children.at(0).token.token + "\n");
-        addCode("\tmov [" + tree->children.at(0).token.token + "], " + reg.name + "\n");
+        Token *identifier = &tree->children.at(0).token;
+        RegisterEntry reg = generateExpression(&tree->children.at(2)); // get a register
+        addCode("\tmov [" + identifier->token + "], " + reg.name + "\n");
         freeRegister(reg); // free the register
         return;
     }
@@ -84,6 +90,10 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             addCode("\tmov [" + tree->children.at(1).token.token + "], " + reg.name + "\n");
             freeRegister(reg);
         }
+        else
+        {
+            addCode("\tmov byte [" + tree->children.at(1).token.token + "], 0\n");    
+        }
         return;
     }
     if (tree->value == EXPRESSION) // if the root is an expression
@@ -93,9 +103,9 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
     if (tree->value == PRINT_STATEMENT) // if the root is an out function
     {
         RegisterEntry reg = generateExpression(&tree->children.at(2)); // generate the expression
-        if(tree->children.at(2).token.type == ID_IDENTIFIER)
+        if(tree->children.at(2).token.type == ID_CHAR )
         {
-            addCode("\tmov [savedMemoryForPrinting], " + reg.name + "\n");
+            addCode("\tmov [savedMemoryForPrinting], " + reg.name + "\n"); // move the result to the temporary variable
             addCode("\tpusha\n");
             addCode("\tmov eax, 4\n");
             addCode("\tmov ebx, 1\n");
@@ -103,36 +113,86 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             addCode("\tmov edx, 2\n");
             addCode("\tint 0x80\n");
             addCode("\tpopa\n");
-            
         }
-        else if (tree->children.at(2).token.type == ID_NUMBER) // if the type is int
+        else if (tree->children.at(2).token.type == ID_NUMBER)
         {
-            addCode("loop_start" + to_string(labelCount) + ":\n");
-            addCode("\tmov edx, 0\n");
-            addCode("\tdiv word [tenDividerForPrintingNumbers]\n");      
-            addCode("\tadd edx, '0'\n"); 
-            addCode("\tcmp eax, 0\n");  
-            addCode("\tjne loop_start" + to_string(labelCount++) + "\n"); 
-            addCode("\tmov eax, 4\n");
-            addCode("\tmov ebx, 1\n");
-            addCode("\tint 0x80\n");    
+            //prepare the number for printing
+            addCode("\n\tmov eax, " + reg.name + "\n");
+            addCode("\tcall print_num\n");
         }
+
         else if(tree->children.at(2).token.type == ID_LITERAL)
         {
-
+            //for printing string literals
+            // calculate the length of string
+            addCode("\tmov eax,messageToPrint" + to_string(dataCount) + "\n");
+            addCode("\tmov ecx,-1\n");
+            addCode("print_loop"+ to_string(labelCount) + ":\n");
+            addCode("\tinc ecx\n");
+            addCode("\tcmp byte [eax + ecx], 0\n");
+            addCode("\tjne print_loop"+ to_string(labelCount++) + "\n");
+            
+            // print the string
+            addCode("\tmov	edx,ecx\n");		// arg3, length of string to print
+            addCode("\tmov	ecx,messageToPrint"+ to_string(dataCount++) + "\n");		// arg2, pointer to string
+            addCode("\tmov	ebx,1\n");	// arg1, where to write, screen
+            addCode("\tmov	eax,4\n");	// write sysout command to int 80 hex
+            addCode("\tint	0x80\n");	// interrupt 80 hex, call kernel 
         }
+        addCode("\tcall print_new_line_label\n");
         return;
     }
     if (tree->value == WHILE_STATEMENT) // if the root is a loop
     {
+        addCode("while_loop_label" + to_string(whileLabels) + ":\n");
+        RegisterEntry reg = generateExpression(&tree->children.at(2)); // get a register
+        addCode("\tcmp " + reg.name + ", 0\n");
+        addCode("\tjz while_statement_end" + to_string(whileLabels) + "\n");
+        generateCodeFromAST(&tree->children.at(5)); // generate code for the body
+        addCode("\tjmp while_loop_label" + to_string(whileLabels) + "\n");
+        addCode("while_statement_end" + to_string(whileLabels++) + ":\n");
+        freeRegister(reg); // free the register
         return;
     }
     if (tree->value == FOR_STATEMENT)
     {
+        Token *count = &tree->children.at(2).root->token;
+        int typeCode = count->type;                      
+        RegisterEntry reg = getRegister();                        
+        addCode("\tmov " + reg.name + ", " + count->token + "\n");
+        addCode("for_loop_label" + to_string(forLabels) + ":\n");
+        addCode("\tpush " + reg.name + "\n");
+        generateCodeFromAST(&tree->children.at(5)); // generate code for the list of expressions
+        addCode("\tpop " + reg.name + "\n");
+        addCode("\tdec " + reg.name + "\n");
+        addCode("\tjnz for_loop_label" + to_string(forLabels++) + "\n");
         return;
     }
-    if (tree->value == CONDITION) // if the root is a conditional
+    if (tree->value == IF_STATEMENT) // if the root is a conditional
     {
+        if(tree->children.size() == 7) //if statement without else statement
+        {
+            RegisterEntry reg = generateExpression(&tree->children.at(2)); // get a register
+            addCode("\tcmp " + reg.name + ", 0\n");
+            addCode("\tjz if_statement_end" + to_string(ifLabels) + "\n");
+            generateCodeFromAST(&tree->children.at(5)); // generate code for the body
+            addCode("if_statement_end" + to_string(ifLabels++) + ":\n");
+            freeRegister(reg); // free the register
+        }
+        else
+        {      
+            //if statement with else statement                                                           
+            ParseTree *cond = &tree->children.at(0);                                  
+            RegisterEntry reg = generateExpression(&cond->children.at(2).children.at(0)); 
+            addCode("\tcmp " + reg.name + ", 0\n");
+            addCode("\tjz else_" + to_string(ifLabels) + "\n");
+            generateCodeFromAST(&cond->children.at(5)); // generate code for the if body
+            addCode("\tjmp else_statemet_end" + to_string(ifLabels) + "\n");
+            addCode("else_" + to_string(ifLabels) + ":\n");
+            generateCodeFromAST(&tree->children.at(3)); // generate code for the else body
+            addCode("else_statemet_end" + to_string(ifLabels++) + ":\n");
+            freeRegister(reg); // free the register
+        }
         return;
     }
     for (ParseTree child : tree->children) // generate code for each child
@@ -145,13 +205,19 @@ RegisterEntry CodeGen::generateExpression(ParseTree *expression)
 {
    
     // ParseTree *root = expression;                   // get the root of the expression
-    if (expression->value == IDENTIFIER_ACTION || expression->value == LITERAL_ACTION || expression->value == NUMBER_ACTION) // if the expression is an identifier or literal
+    if (expression->value == IDENTIFIER_ACTION  || expression->value == NUMBER_ACTION) // if the expression is an identifier or literal
     {
         RegisterEntry reg = getRegister();
-        addCode("\tmov " + reg.name + ", " + (expression->token.type == IDENTIFIER_ACTION ? "[" + expression->token.token + "]" : expression->token.token) + "\n");
+        addCode("\tmov " + reg.name + ", " + (expression->value == IDENTIFIER_ACTION ? "[" + expression->token.token + "]" : expression->token.token) + "\n");
         expression->setReg(reg);
     }
-    else if (expression->value == EXPRESSION) // if the expression is an expression
+    else if(expression->value == LITERAL_ACTION)
+    {
+        RegisterEntry reg = getRegister();
+        addData("messageToPrint" + to_string(dataCount) + " db " + expression->token.token + ", 0");
+        expression->setReg(reg);
+    }
+    else if (expression->value == EXPRESSION || expression->value == CONDITION) // if the expression is an expression
     {
         for (ParseTree& child : expression->children) // generate code for each child
         {
@@ -347,7 +413,7 @@ RegisterEntry CodeGen::generateExpression(ParseTree *expression)
             expression->setReg(expression->children.at(0).getReg());
         }
     }
-    else if (expression->value == FACTOR) // if the expression is a term
+    else if (expression->value == FACTOR) // if the expression is a factor
     {
         if (expression->children.size() == 1) // if the expression has only one child
         {
@@ -450,3 +516,55 @@ void CodeGen::addCode(string code)
     this->code.push_back(code); // add the code to the code vector
 }
 
+void CodeGen::addData(string data)
+{
+    this->data.push_back(data); // add the data to the data vector
+}
+
+void CodeGen::generateExit(ofstream &file)
+{
+    file << "\tmov eax, 1\n";
+    file << "\txor ebx, ebx\n";
+    file << "\tint 0x80\n";
+
+
+    //function to print numbers
+    file << "\nprint_num:\n";
+    file <<"\txor ecx, ecx\n";
+    file <<"counter_label:\n";
+    file <<"\tinc ecx\n";
+    file <<"\txor edx, edx\n";
+    
+    //dividing the number by 10
+    file << "\tdiv word [tenDividerForPrintingNumbers]\n";
+    file << "\tpush edx\n";
+    file << "\tcmp eax, 0\n";
+    file << "\tjg counter_label\n";
+    file << "\nputChar:\n";
+    file << "\tpop edx\n";
+    file << "\tadd edx, '0'\n";
+    file << "\tmov [savedMemoryForPrinting], edx\n";
+    file << "\tpusha\n";
+    
+    //printing the number
+    file << "\tmov eax, 4\n";
+    file << "\tmov ebx, 1\n";
+    file << "\tmov ecx, savedMemoryForPrinting\n";
+    file << "\tmov edx, 2\n";
+    file << "\tint 0x80\n";
+    
+    //pop the registers
+    file << "\tpopa\n";
+    file << "\tloop putChar\n";
+    file << "\tret\n";
+
+
+    //after each print command we will print a new line
+    file <<"print_new_line_label:\n";
+    file <<"\tmov	edx,1\n";
+    file <<"\tmov	ecx, newLineSavedMemory\n";	// to print newline
+    file <<"\tmov	ebx,1\n";	// arg1, where to write, screen
+    file <<"\tmov	eax,4\n";	// write sysout command to int 80 hex
+    file <<"\tint	0x80\n"; 
+    file <<"\tret\n";  
+}

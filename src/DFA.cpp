@@ -25,11 +25,11 @@ void DFA::addTokens(const std::string &token)
         {
             mat[row]['_'] = freeState;
 
-            for(int col = 'a'; col < 'z'; col++)
+            for(int col = 'a'; col <= 'z'; col++)
             {
                 mat[row][col] = freeState; 
             }
-            for (int col = 'A'; col < 'Z'; col++)
+            for (int col = 'A'; col <= 'Z'; col++)
             {
                 mat[row][col] = freeState;
             }
@@ -41,7 +41,7 @@ void DFA::addTokens(const std::string &token)
         //give all numbers state of 2
         for (int row = 0; row < NUM_OF_STATES; row++)
         {
-            for(int col = '0'; col < '9'; col++)
+            for(int col = '0'; col <= '9'; col++)
             {
                 mat[row][col] = freeState; 
             }

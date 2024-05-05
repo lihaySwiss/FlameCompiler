@@ -1,0 +1,12 @@
+int a
+
+while(a != 10)
+{
+    a := a + 1
+    scream(a)
+    if(a == 10)
+    {
+        scream("count complete!")
+    }
+}
+
