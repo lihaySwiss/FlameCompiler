@@ -8,7 +8,7 @@ int main(int argc, char const * argv[]) {
     
     if(argc < 2){
         std::cout << "Usage: ./ace <path_to_.ace_file>" << std::endl;
-        //return 1;
+        return 1;
     }
 
     //std::string path = "../tests/errorTypesTests/test2.ace";

@@ -43,7 +43,7 @@ void CodeGen::exacuteNasm(string outputFileName)
     bool returnCode = system(assmble.c_str());
     bool returnCode2 = system(link.c_str());
     bool returnCode3 = system(run.c_str());
-    //bool returnCode4 = system(remove.c_str());
+    bool returnCode4 = system(remove.c_str());
 
     // if (!(returnCode || returnCode2 || returnCode3 || returnCode4)) {
     //     std::cout << "\nCommands executed successfully." << std::endl;

@@ -1,7 +1,9 @@
-char hi := 's'
+char hi := 'sas'
 while( hi != 'v')
 {
     hello := 3
     iAmSemError := 'g'
     hi := 'v'
+    
 }
+scream(hi)
