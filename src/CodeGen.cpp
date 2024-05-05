@@ -30,24 +30,26 @@ bool CodeGen::generate(ParseTree *parseTree)
 
 void CodeGen::exacuteNasm(string outputFileName)
 {
-    std::cout << "\nRunning following commands to run the code: "<<std::endl;
+    //prints here are for dubugging purposes
+    //std::cout << "\nRunning following commands to run the code: "<<std::endl;
     // Command to execute (replace with your actual command)
     std::string assmble = "nasm -f elf32 " + outputFileName + " -o " + this->fileName.substr(0, fileName.size() - 4) + ".o";
     std::string link = "ld -m elf_i386 -s -o " + this->fileName.substr(0, fileName.size() - 4) + " "+ this->fileName.substr(0, fileName.size() - 4) + ".o";
     std::string run = "./" + this->fileName.substr(0, fileName.size() - 4);
-
-    std:cout << assmble << std::endl << link << std::endl << run << std::endl;
+    std::string remove = "rm " + this->fileName.substr(0, fileName.size() - 4) + ".o" + " " + this->fileName.substr(0, fileName.size() - 4) +".asm";
+    //std:cout << assmble << std::endl << link << std::endl << run << std::endl;
 
     // Execute the command using system
     bool returnCode = system(assmble.c_str());
     bool returnCode2 = system(link.c_str());
     bool returnCode3 = system(run.c_str());
+    //bool returnCode4 = system(remove.c_str());
 
-    if (!(returnCode || returnCode2 || returnCode3)) {
-        std::cout << "\nCommands executed successfully." << std::endl;
-    } else {
-        std::cerr << "\nError executing one or more commands " << std::endl;
-    }
+    // if (!(returnCode || returnCode2 || returnCode3 || returnCode4)) {
+    //     std::cout << "\nCommands executed successfully." << std::endl;
+    // } else {
+    //     std::cerr << "\nError executing one or more commands " << std::endl;
+    // }
 }
 
 void CodeGen::createBaseAsm(ofstream &file)
@@ -134,7 +136,7 @@ void CodeGen::generateCodeFromAST(ParseTree *tree)
             
             // print the string
             addCode("\tmov	edx,ecx\n");		// arg3, length of string to print
-            addCode("\tmov	ecx,messageToPrint"+ to_string(dataCount++) + "\n");		// arg2, pointer to string
+            addCode("\tmov	ecx,messageToPrint"+ to_string(dataCount) + "\n");		// arg2, pointer to string
             addCode("\tmov	ebx,1\n");	// arg1, where to write, screen
             addCode("\tmov	eax,4\n");	// write sysout command to int 80 hex
             addCode("\tint	0x80\n");	// interrupt 80 hex, call kernel 
@@ -214,7 +216,7 @@ RegisterEntry CodeGen::generateExpression(ParseTree *expression)
     else if(expression->value == LITERAL_ACTION)
     {
         RegisterEntry reg = getRegister();
-        addData("messageToPrint" + to_string(dataCount) + " db " + expression->token.token + ", 0");
+        addData("messageToPrint" + to_string(++dataCount) + " db " + expression->token.token + ", 0");
         expression->setReg(reg);
     }
     else if (expression->value == EXPRESSION || expression->value == CONDITION) // if the expression is an expression

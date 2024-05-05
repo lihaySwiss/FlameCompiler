@@ -11,8 +11,8 @@ int main(int argc, char const * argv[]) {
         //return 1;
     }
 
-    std::string path = "../tests/test3.ace";
-    //std::string path = argv[1];
+    //std::string path = "../tests/errorTypesTests/test2.ace";
+    std::string path = argv[1];
 
     Lexer *lexer = new Lexer(path);
     lexer->readFromFile();
@@ -22,11 +22,15 @@ int main(int argc, char const * argv[]) {
 
     parser->setInputList(lexer->getTokenList());
     parseTree = parser->parse();
-    parser->printAST(parseTree, "", true);
+    //parser->printAST(parseTree, "", true);
 
     SemanticAnalysis *semanticAnalysis = new SemanticAnalysis(&parseTree);
-    semanticAnalysis->semanticHelper(&parseTree, 0);
-    semanticAnalysis->printSymbolTable();
+    semanticAnalysis->semantic(&parseTree, 0);
+    //semanticAnalysis->printSymbolTable();
+    if(semanticAnalysis->getErrors()){
+        std::cout << "Semantic Errors detected in the code, please fix." << std::endl;
+        return 1;
+    }
 
     CodeGen *codeGen = new CodeGen(path, semanticAnalysis->getSymbolTable());
     codeGen->generate(&parseTree);

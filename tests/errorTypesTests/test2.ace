@@ -1,17 +1,7 @@
-char gg := 'd'
-int g_ := 90
-
-g_ := gg
-
-if(gg > 10)
+char hi := 's'
+while( hi != 'v')
 {
-    scream(':(')    
+    hello := 3
+    iAmSemError := 'g'
+    hi := 'v'
 }
-
-scream(' h')
-scream('e')
-scream('l')
-scream('l')
-scream('o ')
-
-

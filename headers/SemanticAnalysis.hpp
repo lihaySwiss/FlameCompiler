@@ -7,6 +7,7 @@ class SemanticAnalysis
 private:
     unordered_set<Symbol, Symbol::HashFunction> symbolTable;    // Symbol table
     ParseTree* parseTree;                                       // Parse tree
+    bool errors = false;                                        // Flag to indicate if there are any errors
 
     unordered_map<string, int> mapOfTypes = {
     {"int", INT},
@@ -31,8 +32,7 @@ public:
     ///  @param tree
     /// @param scope
     /// @return ParseTree*
-    ParseTree* semantic();
-    ParseTree* semanticHelper(ParseTree *tree, int scope);
+    ParseTree* semantic(ParseTree *tree, int scope);
     
     /// @brief Function to get the type of the symbol
     /// @param type 
@@ -48,6 +48,10 @@ public:
     /// @param token 
     /// @return type of the token
     int identifyType(Token *token);
+
+    /// @brief Function to check if there are any errors in the code
+    /// @return bool value to indicate if there are any errors
+    bool getErrors() { return errors; }
 
     /// @brief Function to print the symbol table
     void printSymbolTable();
