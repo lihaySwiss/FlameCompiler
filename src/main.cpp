@@ -22,11 +22,11 @@ int main(int argc, char const * argv[]) {
 
     parser->setInputList(lexer->getTokenList());
     parseTree = parser->parse();
-    //parser->printAST(parseTree, "", true);
+    parser->printAST(parseTree, "", true);
 
     SemanticAnalysis *semanticAnalysis = new SemanticAnalysis(&parseTree);
     semanticAnalysis->semantic(&parseTree, 0);
-    //semanticAnalysis->printSymbolTable();
+    semanticAnalysis->printSymbolTable();
     if(semanticAnalysis->getErrors()){
         std::cout << "Semantic Errors detected in the code, please fix." << std::endl;
         return 1;

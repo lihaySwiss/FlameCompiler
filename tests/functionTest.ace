@@ -1,0 +1,19 @@
+give int main()
+{
+    int ace := 0
+    int sum := 0
+    int i := 0
+
+    while (ace < 10)
+    {
+        ace := ace + 1
+        sum := ace + ace
+    }
+    if( sum == 55)
+    {
+        ace := ace + 1
+    }
+    scream(ace)
+    scream(sum)
+    return ace
+}

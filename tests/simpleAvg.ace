@@ -1,0 +1,24 @@
+give int main()
+{
+    int avg := 0
+    int b := 0
+    int a := 0
+    int c := 0
+    int d := 0
+
+    while(a <= 1)
+    {
+        b := b + 1
+        a := a + 7
+
+        c := a * b
+        d := (c + b) * 2
+    }
+
+    avg := (a + b + c + d) / 4    
+
+    scream("The average of a, b, c, and d is: ")
+    scream(avg)
+    return avg
+
+}

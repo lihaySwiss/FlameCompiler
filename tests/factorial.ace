@@ -1,0 +1,21 @@
+give int main()
+{
+    int n := 5
+    int i := 1
+    int fact := 1
+    
+    if(n > 0) 
+    {
+        while ( i <= n ) 
+        {
+            fact := i * fact
+            i := i + 1
+        }
+        scream("Factorial of")
+        scream(n)
+        scream("is")
+        scream(fact)
+    }
+
+    return 0
+}
